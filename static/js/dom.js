@@ -4,12 +4,15 @@ import { dataHandler } from "./data_handler.js";
 export let dom = {
     init: function () {
         // This function should run once, when the page is loaded.
+        dataHandler.init();
     },
     loadBoards: function () {
         // retrieves boards and makes showBoards called
         dataHandler.getBoards(function(boards){
+
             dom.showBoards(boards);
-            console.log(boards);
+
+            // console.log(boards);
         });
     },
     showBoards: function (boards) {
@@ -18,21 +21,23 @@ export let dom = {
         const pageContainer = document.getElementById('boards');
         pageContainer.innerText = "";
         const accordion = dom.createAccordion(boards);
-
+        console.log(dataHandler._data.statuses);
         // const statues =
         pageContainer.appendChild(accordion);
+
 
     },
     loadCards: function (boardId) {
         // retrieves cards and makes showCards called
-        console.log(dataHandler._data);
+        // console.log(dataHandler._data);
         dataHandler.getCardsByBoardId(boardId, function(cards) {
-            dom.showCards(cards);
+            console.log(cards);
+            // dom.showCards();
         });
         console.log(boardId)
     },
     showCards: function (cards) {
-        console.log(dataHandler._data['boards'], 'to');
+        // console.log(dataHandler._data['boards'], 'to');
         // console.log(cards, 'asd');
         // shows the cards of a board
         // it adds necessary event listeners also
@@ -44,7 +49,11 @@ export let dom = {
         accordionContainer.setAttribute('id', 'accordionContainer');
         for (let board of boards) {
             const accItem = dom.createAccordionItem(board);
+            const accBody = accItem.querySelector('.accordion-collapse .accordion-body');
+            const statusesColumns = dom.createStatusesColumns();
+
             accordionContainer.appendChild(accItem);
+            // console.log(accBody);
         }
         return accordionContainer;
     },
@@ -86,6 +95,9 @@ export let dom = {
 
         accordionItem.appendChild(collapseArea);
         return accordionItem;
-    }
+    },
     // here comes more features
+    createStatusesColumns() {
+        // console.log(dataHandler._data['statuses']);
+    }
 };

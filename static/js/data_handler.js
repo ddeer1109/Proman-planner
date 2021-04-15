@@ -21,7 +21,7 @@ export let dataHandler = {
         // sends the data to the API, and calls callback function
     },
     init: function () {
-        // this.getStatuses()
+        this.getStatuses();
     },
     getBoards: function (callback) {
         // the boards are retrieved and then the callback function is called with the boards
@@ -31,8 +31,6 @@ export let dataHandler = {
         this._api_get('/get-boards', (response) => {
             this._data['boards'] = response;
             callback(response);
-            this.getStatuses();
-            console.log(this._data, 'aaa');
         });
     },
     getBoard: function (boardId, callback) {
@@ -43,7 +41,7 @@ export let dataHandler = {
         // the statuses are retrieved and then the callback function is called with the statuses
         this._api_get('/get-statuses', (response) => {
             this._data['statuses'] = response;
-            console.log(response);
+            // console.log(response);
         })
     },
     getStatus: function (statusId, callback) {
