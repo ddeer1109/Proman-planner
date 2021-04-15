@@ -8,7 +8,7 @@ export let dom = {
     },
     loadBoards: function () {
         // retrieves boards and makes showBoards called
-        dataHandler.getBoards(function(boards){
+        dataHandler.getBoards(function (boards) {
 
             dom.showBoards(boards);
 
@@ -30,7 +30,7 @@ export let dom = {
     loadCards: function (boardId) {
         // retrieves cards and makes showCards called
         // console.log(dataHandler._data);
-        dataHandler.getCardsByBoardId(boardId, function(cards) {
+        dataHandler.getCardsByBoardId(boardId, function (cards) {
             console.log(cards);
             // dom.showCards();
         });
@@ -43,21 +43,22 @@ export let dom = {
         // it adds necessary event listeners also
     },
 
-    createAccordion: function(boards) {
+    createAccordion: function (boards) {
         const accordionContainer = document.createElement('div');
         accordionContainer.setAttribute('class', 'accordion');
         accordionContainer.setAttribute('id', 'accordionContainer');
         for (let board of boards) {
             const accItem = dom.createAccordionItem(board);
             const accBody = accItem.querySelector('.accordion-collapse .accordion-body');
-            const statusesColumns = dom.createStatusesColumns();
 
+            const statusesColumns = dom.createStatusesColumns();
+            accBody.appendChild(statusesColumns);
             accordionContainer.appendChild(accItem);
             // console.log(accBody);
         }
         return accordionContainer;
     },
-    createAccordionItem: function(board) {
+    createAccordionItem: function (board) {
         const headerId = `heading${board.id}`;
         const collapseId = `collapse${board.id}`;
 
@@ -77,8 +78,8 @@ export let dom = {
         accordionButton.setAttribute('aria-expanded', `true`);
         accordionButton.setAttribute('aria-controls', `${collapseId}`);
         accordionButton.addEventListener('click', () => {
-                dom.loadCards(board.id);
-            })
+            dom.loadCards(board.id);
+        })
         accordionHeader.appendChild(accordionButton);
         accordionItem.appendChild(accordionHeader);
 
@@ -90,7 +91,7 @@ export let dom = {
 
 
         const accordionBody = document.createElement('div');
-        accordionBody.setAttribute('class', 'accordion-body');
+        accordionBody.setAttribute('class', 'accordion-body container');
         collapseArea.appendChild(accordionBody);
 
         accordionItem.appendChild(collapseArea);
@@ -98,6 +99,16 @@ export let dom = {
     },
     // here comes more features
     createStatusesColumns() {
-        // console.log(dataHandler._data['statuses']);
+        const rowDiv = document.createElement('div');
+        rowDiv.classList.add('row');
+        console.log(dataHandler._data['statuses']);
+        for (let rec of dataHandler._data['statuses']) {
+            const statusCol = document.createElement('div');
+            statusCol.innerText = rec.title;
+            statusCol.setAttribute('class', `col status${rec.id}`);
+            statusCol.setAttribute('data-status', `${rec.id}`);
+            rowDiv.appendChild(statusCol);
+        };
+        return rowDiv
     }
 };
