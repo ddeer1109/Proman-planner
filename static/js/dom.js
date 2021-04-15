@@ -1,6 +1,19 @@
 // It uses data_handler.js to visualize elements
 import { dataHandler } from "./data_handler.js";
 
+export let htmlSelectors = {
+    getBoardById(boardId) {
+        return document.querySelector(`.board${boardId}`);
+    },
+    getBoardColumnOfStatus(boardId, statusId) {
+        // return document.querySelector(`.accordion-item.board${boardId} div#collapse${boardId} div.accordion-body`);
+        return document.querySelector(`div[data-board="${boardId}"] .row .col.status${statusId} div.column-content`);
+    }
+};
+
+
+
+
 export let dom = {
     init: function () {
         // This function should run once, when the page is loaded.
@@ -31,16 +44,22 @@ export let dom = {
         // retrieves cards and makes showCards called
         // console.log(dataHandler._data);
         dataHandler.getCardsByBoardId(boardId, function (cards) {
-            console.log(cards);
-            // dom.showCards();
+            dom.showCards(cards);
         });
-        console.log(boardId)
     },
     showCards: function (cards) {
         // console.log(dataHandler._data['boards'], 'to');
         // console.log(cards, 'asd');
         // shows the cards of a board
         // it adds necessary event listeners also
+        console.log('cards', cards);
+        for (let card of cards) {
+            const cardNew = document.createElement('div');
+            cardNew.setAttribute('class', 'card');
+            cardNew.setAttribute('data-card', `${card.id}`);
+            cardNew.innerText = card.title;
+            htmlSelectors.getBoardColumnOfStatus().appendChild(cardNew);
+        };
     },
 
     createAccordion: function (boards) {
@@ -63,7 +82,7 @@ export let dom = {
         const collapseId = `collapse${board.id}`;
 
         const accordionItem = document.createElement('div');
-        accordionItem.setAttribute('class', 'accordion-item');
+        accordionItem.setAttribute('class', `accordion-item board${board.id}`);
 
         const accordionHeader = document.createElement('h2');
         accordionHeader.setAttribute('class', 'accordion-header');
@@ -92,6 +111,7 @@ export let dom = {
 
         const accordionBody = document.createElement('div');
         accordionBody.setAttribute('class', 'accordion-body container');
+        accordionBody.setAttribute('data-board', `${board.id}`);
         collapseArea.appendChild(accordionBody);
 
         accordionItem.appendChild(collapseArea);
@@ -104,9 +124,15 @@ export let dom = {
         console.log(dataHandler._data['statuses']);
         for (let rec of dataHandler._data['statuses']) {
             const statusCol = document.createElement('div');
-            statusCol.innerText = rec.title;
+
+            const statusTitle = document.createElement('h4');
+            const statusContent = document.createElement('div');
+            statusTitle.innerText = rec.title;
             statusCol.setAttribute('class', `col status${rec.id}`);
-            statusCol.setAttribute('data-status', `${rec.id}`);
+            statusContent.setAttribute('data-status', `${rec.id}`);
+            statusContent.setAttribute('class', 'column-content');
+            statusCol.appendChild(statusTitle);
+            statusCol.appendChild(statusContent);
             rowDiv.appendChild(statusCol);
         };
         return rowDiv
