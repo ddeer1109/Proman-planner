@@ -15,22 +15,30 @@ export let dom = {
     showBoards: function (boards) {
         // shows boards appending them to #boards div
         // it adds necessary event listeners also
-        dom.createAccordion(boards);
+        const pageContainer = document.getElementById('boards');
+        pageContainer.innerText = "";
+        const accordion = dom.createAccordion(boards);
+
+        // const statues =
+        pageContainer.appendChild(accordion);
 
     },
     loadCards: function (boardId) {
         // retrieves cards and makes showCards called
         console.log(dataHandler._data);
+        dataHandler.getCardsByBoardId(boardId, function(cards) {
+            dom.showCards(cards);
+        });
         console.log(boardId)
     },
     showCards: function (cards) {
+        console.log(dataHandler._data['boards'], 'to');
+        // console.log(cards, 'asd');
         // shows the cards of a board
         // it adds necessary event listeners also
     },
 
     createAccordion: function(boards) {
-        console.log(boards);
-
         const accordionContainer = document.createElement('div');
         accordionContainer.setAttribute('class', 'accordion');
         accordionContainer.setAttribute('id', 'accordionContainer');
@@ -38,10 +46,7 @@ export let dom = {
             const accItem = dom.createAccordionItem(board);
             accordionContainer.appendChild(accItem);
         }
-        let pageContainer = document.getElementById('boards')
-        pageContainer.innerText = "";
-        pageContainer.appendChild(accordionContainer);
-
+        return accordionContainer;
     },
     createAccordionItem: function(board) {
         const headerId = `heading${board.id}`;
