@@ -8,6 +8,9 @@ export let htmlSelectors = {
     getBoardColumnOfStatus(boardId, statusId) {
         // return document.querySelector(`.accordion-item.board${boardId} div#collapse${boardId} div.accordion-body`);
         return document.querySelector(`div[data-board="${boardId}"] .row .col.status${statusId} div.column-content`);
+    },
+    getBoardsColumns(boardId) {
+        return htmlSelectors.getBoardById(boardId).querySelectorAll('.row .col .column-content');
     }
 };
 
@@ -44,6 +47,7 @@ export let dom = {
         // retrieves cards and makes showCards called
         // console.log(dataHandler._data);
         dataHandler.getCardsByBoardId(boardId, function (cards) {
+            dom.resetColumns(boardId);
             dom.showCards(cards);
         });
     },
@@ -52,13 +56,13 @@ export let dom = {
         // console.log(cards, 'asd');
         // shows the cards of a board
         // it adds necessary event listeners also
-        console.log('cards', cards);
+        // console.log('cards', cards);
         for (let card of cards) {
             const cardNew = document.createElement('div');
             cardNew.setAttribute('class', 'card');
             cardNew.setAttribute('data-card', `${card.id}`);
             cardNew.innerText = card.title;
-            htmlSelectors.getBoardColumnOfStatus().appendChild(cardNew);
+            htmlSelectors.getBoardColumnOfStatus(card.board_id, card.status_id).appendChild(cardNew);
         };
     },
 
@@ -121,7 +125,6 @@ export let dom = {
     createStatusesColumns() {
         const rowDiv = document.createElement('div');
         rowDiv.classList.add('row');
-        console.log(dataHandler._data['statuses']);
         for (let rec of dataHandler._data['statuses']) {
             const statusCol = document.createElement('div');
 
@@ -136,5 +139,13 @@ export let dom = {
             rowDiv.appendChild(statusCol);
         };
         return rowDiv
+    },
+    resetColumns(boardId) {
+        const boardColumns = htmlSelectors.getBoardsColumns(boardId);
+        for (let column of boardColumns) {
+            column.innerText = "";
+        }
     }
+
+
 };
