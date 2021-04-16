@@ -25,6 +25,10 @@ def get_boards():
 
     return boards
 
+def get_board(board_id):
+    single_board = [board for board in get_boards() if int(board['id']) == board_id]
+    return single_board[0]
+
 
 def get_cards_for_board(board_id):
     persistence.clear_cache()

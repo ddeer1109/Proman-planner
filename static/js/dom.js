@@ -61,7 +61,11 @@ export let dom = {
         dataHandler.getCardsByBoardId(boardId, function (cards) {
             const accBody = htmlSelectors.getAccordionBody(boardId);
             // const cardsStatusesIds = cards.map(card => card.status_id);
-            dom.createStatusesColumns(accBody);
+
+            dataHandler.getBoard(boardId, function (board) {
+                dom.createStatusesColumns(accBody, board.statuses);
+            });
+
 
             console.log(dataHandler._data)
 
@@ -137,10 +141,18 @@ export let dom = {
         return accordionItem;
     },
     // here comes more features
-    createStatusesColumns(accBody) {
+    createStatusesColumns(accBody, boardStatuses) {
+        console.log(boardStatuses, '===> statuses')
+
         accBody.innerHTML = "";
         dataHandler.getStatuses(function(statuses) {
-            for (let status of statuses) {
+            const boardStatusesObject = statuses.filter(status => boardStatuses.includes(status.id) )
+
+            // console.log(boardStatusesObject, 'boardstatusesobject')
+
+            for (let status of boardStatusesObject) {
+                    console.log(status, '> single status')
+
                 // if (boardStatusesIds.includes(status.id)) {
                 //     // console.log('status', status);
                     const colDiv = document.createElement('div');
