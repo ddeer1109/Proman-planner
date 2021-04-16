@@ -16,7 +16,14 @@ def get_boards():
     Gather all boards
     :return:
     """
-    return persistence.get_boards(force=True)
+    boards = persistence.get_boards(force=True)
+
+    for board in boards:
+        board['statuses']=board['statuses'].split('_')
+        print(board)
+
+
+    return boards
 
 
 def get_cards_for_board(board_id):

@@ -2,6 +2,9 @@ from flask import Flask, render_template, url_for
 from util import json_response
 
 import data_handler
+import mimetypes
+
+mimetypes.add_type('application/javascript', '.js')
 
 app = Flask(__name__)
 

@@ -46,7 +46,7 @@ export let dom = {
         // it adds necessary event listeners also
         const pageContainer = document.getElementById('boards');
         const accordion = dom.createAccordion(boards);
-        console.log('container', pageContainer.innerHTML);
+        // console.log('container', pageContainer.innerHTML);
 
             // pageContainer.replaceChild(accordion, pageContainer.firstChild);
         setTimeout(()=>{
@@ -59,12 +59,17 @@ export let dom = {
         // retrieves cards and makes showCards called
         // console.log(dataHandler._data);
         dataHandler.getCardsByBoardId(boardId, function (cards) {
-            const accBody = htmlSelectors.getAccordionBody(cards[0].board_id);
-            const cardsStatusesIds = cards.map(card => card.status_id);
-            dom.createStatusesColumns(cardsStatusesIds, boardId, accBody);
+            const accBody = htmlSelectors.getAccordionBody(boardId);
+            // const cardsStatusesIds = cards.map(card => card.status_id);
+            dom.createStatusesColumns(accBody);
+
+            console.log(dataHandler._data)
 
             const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
-            wait(100).then(() => console.log(dom.showCards(cards, accBody)));
+            wait(100).then(() => {
+                console.log('success')
+                dom.showCards(cards, accBody)
+            });
         });
     },
     showCards: function (cards, accBody) {
@@ -132,12 +137,12 @@ export let dom = {
         return accordionItem;
     },
     // here comes more features
-    createStatusesColumns(boardStatusesIds, boardId, accBody) {
+    createStatusesColumns(accBody) {
         accBody.innerHTML = "";
         dataHandler.getStatuses(function(statuses) {
             for (let status of statuses) {
-                if (boardStatusesIds.includes(status.id)) {
-                    // console.log('status', status);
+                // if (boardStatusesIds.includes(status.id)) {
+                //     // console.log('status', status);
                     const colDiv = document.createElement('div');
                     colDiv.classList.add(`status-column`);
                     colDiv.setAttribute('data-column', status.id);
@@ -148,7 +153,7 @@ export let dom = {
                     statusContent.setAttribute('class', 'column-content');
                     colDiv.appendChild(statusContent);
                     accBody.appendChild(colDiv);
-                }
+                // }
             }
         });
 
