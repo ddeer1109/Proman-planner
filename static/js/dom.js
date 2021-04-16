@@ -7,11 +7,21 @@ export let htmlSelectors = {
     },
     getBoardColumnOfStatus(boardId, statusId) {
         // return document.querySelector(`.accordion-item.board${boardId} div#collapse${boardId} div.accordion-body`);
-        return document.querySelector(`div[data-board="${boardId}"] .row .col.status${statusId} div.column-content`);
+        return document.querySelector(`div[data-board="${boardId}"] .row .col.status${statusId} .column-content`);
     },
     getBoardsColumns(boardId) {
-        return htmlSelectors.getBoardById(boardId).querySelectorAll('.row .col .column-content');
+        return htmlSelectors.getBoardById(boardId).querySelector('.row').childNodes;
+    },
+    getAccordionBody(boardId) {
+
+        return document.querySelector(`div[data-board="${boardId}"]`);
+    },
+    getColumn(accBody, statusId) {
+        // console.log(`#${boardId}${statusId}, id`);
+        // return document.getElementById(`${boardId}${statusId}`);
+        return accBody.querySelector(`div.status-column[data-column="${statusId}"] .column-content`)
     }
+
 };
 
 
@@ -24,7 +34,7 @@ export let dom = {
     },
     loadBoards: function () {
         // retrieves boards and makes showBoards called
-        dataHandler.getBoards(function (boards) {
+        dataHandler.getBoards(function(boards) {
 
             dom.showBoards(boards);
 
@@ -35,35 +45,37 @@ export let dom = {
         // shows boards appending them to #boards div
         // it adds necessary event listeners also
         const pageContainer = document.getElementById('boards');
-        pageContainer.innerText = "";
         const accordion = dom.createAccordion(boards);
-        console.log(dataHandler._data.statuses);
-        // const statues =
-        pageContainer.appendChild(accordion);
+        console.log('container', pageContainer.innerHTML);
 
+            // pageContainer.replaceChild(accordion, pageContainer.firstChild);
+        setTimeout(()=>{
+            pageContainer.innerHTML = "";
+            pageContainer.appendChild(accordion);
+        }, 1000)
 
     },
     loadCards: function (boardId) {
         // retrieves cards and makes showCards called
         // console.log(dataHandler._data);
         dataHandler.getCardsByBoardId(boardId, function (cards) {
-            dom.resetColumns(boardId);
-            dom.showCards(cards);
+            const accBody = htmlSelectors.getAccordionBody(cards[0].board_id);
+            const cardsStatusesIds = cards.map(card => card.status_id);
+            dom.createStatusesColumns(cardsStatusesIds, boardId, accBody);
+
+            const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+            wait(100).then(() => console.log(dom.showCards(cards, accBody)));
         });
     },
-    showCards: function (cards) {
-        // console.log(dataHandler._data['boards'], 'to');
-        // console.log(cards, 'asd');
-        // shows the cards of a board
-        // it adds necessary event listeners also
-        // console.log('cards', cards);
+    showCards: function (cards, accBody) {
         for (let card of cards) {
             const cardNew = document.createElement('div');
             cardNew.setAttribute('class', 'card');
             cardNew.setAttribute('data-card', `${card.id}`);
             cardNew.innerText = card.title;
-            htmlSelectors.getBoardColumnOfStatus(card.board_id, card.status_id).appendChild(cardNew);
+            htmlSelectors.getColumn(accBody, card.status_id).appendChild(cardNew);
         };
+
     },
 
     createAccordion: function (boards) {
@@ -72,12 +84,7 @@ export let dom = {
         accordionContainer.setAttribute('id', 'accordionContainer');
         for (let board of boards) {
             const accItem = dom.createAccordionItem(board);
-            const accBody = accItem.querySelector('.accordion-collapse .accordion-body');
-
-            const statusesColumns = dom.createStatusesColumns();
-            accBody.appendChild(statusesColumns);
             accordionContainer.appendChild(accItem);
-            // console.log(accBody);
         }
         return accordionContainer;
     },
@@ -101,8 +108,10 @@ export let dom = {
         accordionButton.setAttribute('aria-expanded', `true`);
         accordionButton.setAttribute('aria-controls', `${collapseId}`);
         accordionButton.addEventListener('click', () => {
-            dom.loadCards(board.id);
-        })
+            if (!accordionButton.classList.value.includes('collapsed')) {
+                dom.loadCards(board.id);
+            };
+        });
         accordionHeader.appendChild(accordionButton);
         accordionItem.appendChild(accordionHeader);
 
@@ -114,38 +123,35 @@ export let dom = {
 
 
         const accordionBody = document.createElement('div');
-        accordionBody.setAttribute('class', 'accordion-body container');
+        accordionBody.setAttribute('class', 'accordion-body container d-flex justify-content-around');
         accordionBody.setAttribute('data-board', `${board.id}`);
+        accordionBody.appendChild(document.createElement('div'));
         collapseArea.appendChild(accordionBody);
 
         accordionItem.appendChild(collapseArea);
         return accordionItem;
     },
     // here comes more features
-    createStatusesColumns() {
-        const rowDiv = document.createElement('div');
-        rowDiv.classList.add('row');
-        for (let rec of dataHandler._data['statuses']) {
-            const statusCol = document.createElement('div');
+    createStatusesColumns(boardStatusesIds, boardId, accBody) {
+        accBody.innerHTML = "";
+        dataHandler.getStatuses(function(statuses) {
+            for (let status of statuses) {
+                if (boardStatusesIds.includes(status.id)) {
+                    // console.log('status', status);
+                    const colDiv = document.createElement('div');
+                    colDiv.classList.add(`status-column`);
+                    colDiv.setAttribute('data-column', status.id);
+                    const statusTitle = document.createElement('h4');
+                    statusTitle.innerText = status.title;
+                    colDiv.appendChild(statusTitle);
+                    const statusContent = document.createElement('div');
+                    statusContent.setAttribute('class', 'column-content');
+                    colDiv.appendChild(statusContent);
+                    accBody.appendChild(colDiv);
+                }
+            }
+        });
 
-            const statusTitle = document.createElement('h4');
-            const statusContent = document.createElement('div');
-            statusTitle.innerText = rec.title;
-            statusCol.setAttribute('class', `col status${rec.id}`);
-            statusContent.setAttribute('data-status', `${rec.id}`);
-            statusContent.setAttribute('class', 'column-content');
-            statusCol.appendChild(statusTitle);
-            statusCol.appendChild(statusContent);
-            rowDiv.appendChild(statusCol);
-        };
-        return rowDiv
     },
-    resetColumns(boardId) {
-        const boardColumns = htmlSelectors.getBoardsColumns(boardId);
-        for (let column of boardColumns) {
-            column.innerText = "";
-        }
-    }
-
 
 };
