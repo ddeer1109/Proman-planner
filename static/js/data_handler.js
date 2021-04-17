@@ -45,13 +45,21 @@ export let dataHandler = {
         // the statuses are retrieved and then the callback function is called with the statuses
         this._api_get('/get-statuses', (response) => {
             this._data['statuses'] = response;
-            console.log(response, 'response');
             callback(response);
         });
     },
     getStatus: function (statusId, callback) {
         // the status is retrieved and then the callback function is called with the status
     },
+    getBoardsStatuses: function (boardId, callback) {
+        this._api_get(`get-board-statuses/${boardId}`, (response) => {
+            let tempObject = this._data['boards'].filter(board => board.id == boardId);
+            tempObject[0].statuses = response;
+            console.log(response, "board statuses");
+            callback(response);
+        })
+    },
+
     getCardsByBoardId: function (boardId, callback) {
         // the cards are retrieved and then the callback function is called with the cards
         this._api_get(`get-cards/${boardId}`, (response) => {

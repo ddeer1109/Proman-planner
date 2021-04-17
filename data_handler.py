@@ -32,6 +32,9 @@ def get_cards_for_board(board_id):
     return all_cards
 
 
-
 def get_statuses():
     return persistence.get_statuses()
+
+
+def get_board_statuses(board_id):
+    return persistence.get_board_statuses(board_id)

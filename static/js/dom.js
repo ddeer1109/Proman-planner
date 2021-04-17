@@ -59,11 +59,15 @@ export let dom = {
         // retrieves cards and makes showCards called
         // console.log(dataHandler._data);
         dataHandler.getCardsByBoardId(boardId, function (cards) {
+            console.log(cards, 'dom')
             const accBody = htmlSelectors.getAccordionBody(boardId);
+            console.log(accBody, 'dom')
+
             // const cardsStatusesIds = cards.map(card => card.status_id);
 
-            dataHandler.getBoard(boardId, function (board) {
-                dom.createStatusesColumns(accBody, board.statuses);
+            dataHandler.getBoardsStatuses(boardId, function (boardStatuses) {
+                console.log(boardStatuses, 'boardStatuses');
+                dom.createStatusesColumns(accBody, boardStatuses);
             });
 
 
@@ -145,30 +149,21 @@ export let dom = {
         console.log(boardStatuses, '===> statuses')
 
         accBody.innerHTML = "";
-        dataHandler.getStatuses(function(statuses) {
-            const boardStatusesObject = statuses.filter(status => boardStatuses.includes(status.id) )
 
-            // console.log(boardStatusesObject, 'boardstatusesobject')
+        for (let status of boardStatuses) {
+                console.log(status, '> single status')
 
-            for (let status of boardStatusesObject) {
-                    console.log(status, '> single status')
-
-                // if (boardStatusesIds.includes(status.id)) {
-                //     // console.log('status', status);
-                    const colDiv = document.createElement('div');
-                    colDiv.classList.add(`status-column`);
-                    colDiv.setAttribute('data-column', status.id);
-                    const statusTitle = document.createElement('h4');
-                    statusTitle.innerText = status.title;
-                    colDiv.appendChild(statusTitle);
-                    const statusContent = document.createElement('div');
-                    statusContent.setAttribute('class', 'column-content');
-                    colDiv.appendChild(statusContent);
-                    accBody.appendChild(colDiv);
-                // }
-            }
-        });
-
+                const colDiv = document.createElement('div');
+                colDiv.classList.add(`status-column`);
+                colDiv.setAttribute('data-column', status.id);
+                const statusTitle = document.createElement('h4');
+                statusTitle.innerText = status.title;
+                colDiv.appendChild(statusTitle);
+                const statusContent = document.createElement('div');
+                statusContent.setAttribute('class', 'column-content');
+                colDiv.appendChild(statusContent);
+                accBody.appendChild(colDiv);
+            // }
+        }
     },
-
 };

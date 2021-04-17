@@ -40,10 +40,21 @@ def clear_cache():
     for k in list(_cache.keys()):
         _cache.pop(k)
 
+#
+# def get_statuses(force=False):
+#     return _get_data('statuses', STATUSES_FILE, force)
+@data_connection.connection_handler
+def get_statuses(cursor: RealDictCursor):
+    query = """
+    SELECT * FROM status
+    """
+    cursor.execute(query)
 
-def get_statuses(force=False):
-    return _get_data('statuses', STATUSES_FILE, force)
+    dictStatusesList = []
+    for entry in cursor.fetchall():
+        dictStatusesList.append(dict(entry))
 
+    return dictStatusesList
 #
 # def get_boards(force=False):
 #     return _get_data('boards', BOARDS_FILE, force)
@@ -80,3 +91,18 @@ def get_cards(cursor: RealDictCursor, board_id):
 
     return dictCardsList
 
+@data_connection.connection_handler
+def get_board_statuses(cursor: RealDictCursor, board_id):
+    query = f"""
+            SELECT status.id as id, status.title as title FROM status
+            INNER JOIN board_status
+            ON board_status.status_id=status.id
+            WHERE board_status.board_id=%(board_id)s;
+            """
+    cursor.execute(query, {'board_id': board_id})
+
+    dictBoardStatuses = []
+    for entry in cursor.fetchall():
+        dictBoardStatuses.append(dict(entry))
+
+    return dictBoardStatuses
