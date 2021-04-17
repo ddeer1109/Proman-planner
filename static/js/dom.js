@@ -31,6 +31,7 @@ export let dom = {
     init: function () {
         // This function should run once, when the page is loaded.
         dataHandler.init();
+        dom.createAddBoardButton();
     },
     loadBoards: function () {
         // retrieves boards and makes showBoards called
@@ -166,4 +167,52 @@ export let dom = {
             // }
         }
     },
+    createAddBoardButton() {
+        console.log("board button <<<<<")
+        const pageHeader = document.getElementById('page-title');
+        const addingButton = document.createElement('button');
+        addingButton.innerText = "Add board";
+        addingButton.setAttribute('class', 'btn btn-success');
+        addingButton.addEventListener('click', dom.showAddBoardModal)
+        pageHeader.insertAdjacentElement('afterend', addingButton);
+    },
+    showAddBoardModal() {
+        const bootstrapHtml = `
+        <div class="container-modal-form">
+            <form id="form" class="row g-3" method="post">
+                <div class="col">
+                    <label for="inputTitle" class="text-light">Title</label>
+                    <input id="input" type="text" name="title" class="form-control" id="inputTitle">
+                </div>  
+            <div class="row g-3">
+                <div class="col flex-center-middle">
+                    <button id="buttonSubmit" type="submit" class="btn btn-success m-3">Confirm</button>
+                    <button id="buttonCancel" type="button" class="btn btn-warning m-3">Cancel</button>
+                </div>
+            </div>
+            </form>
+        </div>
+        `
+        const modal = document.createElement('div');
+        modal.setAttribute('class', 'display-modal');
+        modal.insertAdjacentHTML('afterbegin', bootstrapHtml);
+        document.body.appendChild(modal);
+        const cancelButton = document.getElementById('buttonCancel');
+        cancelButton.addEventListener('click', () => {
+            modal.remove();
+        })
+        const submitButton = document.getElementById('buttonSubmit');
+
+        const form = document.getElementById('form');
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            console.log('submit event');
+            dataHandler.createNewBoard(document.getElementById('input').value, dom.getBoards)
+        });
+        // submitButton.addEventListener('click', (event) => {
+        //     form.preventDefault();
+        //     form.submit();
+        //     console.log('submit');
+        // })
+    }
 };

@@ -56,6 +56,16 @@ def get_statuses():
 def get_board_statuses(board_id: int):
     return data_handler.get_board_statuses(board_id)
 
+
+@app.route("/new-board", methods=["POST"])
+@json_response
+def post_new_board(board_title: str):
+
+    return data_handler.get_boards()
+
+
+
+
 def main():
     app.run(debug=True)
 
