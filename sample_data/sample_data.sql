@@ -1,118 +1,100 @@
+ALTER TABLE IF EXISTS ONLY card DROP CONSTRAINT IF EXISTS fk_card_status_id CASCADE;
+ALTER TABLE IF EXISTS ONLY card DROP CONSTRAINT IF EXISTS fk_card_board_id CASCADE;
+ALTER TABLE IF EXISTS ONLY board_status DROP CONSTRAINT IF EXISTS fk_board_status_status_id CASCADE;
+ALTER TABLE IF EXISTS ONLY board_status DROP CONSTRAINT IF EXISTS fk_board_status_board_id CASCADE;
+ALTER TABLE IF EXISTS ONLY card DROP CONSTRAINT IF EXISTS pk_card_id CASCADE;
+ALTER TABLE IF EXISTS ONLY status DROP CONSTRAINT IF EXISTS pk_status_id CASCADE;
+ALTER TABLE IF EXISTS ONLY board DROP CONSTRAINT IF EXISTS pk_board_id CASCADE;
+ALTER TABLE IF EXISTS ONLY board_status DROP CONSTRAINT IF EXISTS pk_board_status_id CASCADE;
 
-ALTER TABLE IF EXISTS ONLY public.question DROP CONSTRAINT IF EXISTS pk_question_id CASCADE;
-ALTER TABLE IF EXISTS ONLY public.answer DROP CONSTRAINT IF EXISTS pk_answer_id CASCADE;
-ALTER TABLE IF EXISTS ONLY public.answer DROP CONSTRAINT IF EXISTS fk_question_id CASCADE;
-ALTER TABLE IF EXISTS ONLY public.comment DROP CONSTRAINT IF EXISTS pk_comment_id CASCADE;
-ALTER TABLE IF EXISTS ONLY public.comment DROP CONSTRAINT IF EXISTS fk_question_id CASCADE;
-ALTER TABLE IF EXISTS ONLY public.comment DROP CONSTRAINT IF EXISTS fk_answer_id CASCADE;
-ALTER TABLE IF EXISTS ONLY public.question_tag DROP CONSTRAINT IF EXISTS pk_question_tag_id CASCADE;
-ALTER TABLE IF EXISTS ONLY public.question_tag DROP CONSTRAINT IF EXISTS fk_question_id CASCADE;
-ALTER TABLE IF EXISTS ONLY public.tag DROP CONSTRAINT IF EXISTS pk_tag_id CASCADE;
-ALTER TABLE IF EXISTS ONLY public.question_tag DROP CONSTRAINT IF EXISTS fk_tag_id CASCADE;
+DROP TABLE IF EXISTS status;
+CREATE TABLE status (
+  id serial NOT NULL,
+  title text
+);
 
+DROP TABLE IF EXISTS board;
+CREATE TABLE board (
+  id serial NOT NULL,
+  title text
+);
 
-DROP TABLE IF EXISTS public.question;
-CREATE TABLE question (
-    id serial NOT NULL,
-    submission_time timestamp without time zone,
-    view_number integer,
-    vote_number integer,
-    title text,
-    message text,
-    image text
+DROP TABLE IF EXISTS card;
+CREATE TABLE card (
+  id serial NOT NULL,
+  board_id integer,
+  title text,
+  status_id integer,
+  index integer
+);
+
+DROP TABLE IF EXISTS board_status;
+CREATE TABLE board_status (
+  id serial NOT NULL,
+  board_id integer,
+  status_id integer
 );
 
 
-DROP TABLE IF EXISTS public.answer;
-CREATE TABLE answer (
-    id serial NOT NULL,
-    submission_time timestamp without time zone,
-    vote_number integer,
-    question_id integer,
-    message text,
-    image text
-);
+ALTER TABLE ONLY status
+    ADD CONSTRAINT pk_status_id PRIMARY KEY (id);
 
+ALTER TABLE ONLY board
+    ADD CONSTRAINT pk_board_id PRIMARY KEY (id);
 
-DROP TABLE IF EXISTS public.comment;
-CREATE TABLE comment (
-    id serial NOT NULL,
-    question_id integer,
-    answer_id integer,
-    message text,
-    submission_time timestamp without time zone,
-    edited_count integer
-);
+ALTER TABLE ONLY card
+    ADD CONSTRAINT pk_card_id PRIMARY KEY (id);
 
+ALTER TABLE ONLY board_status
+    ADD CONSTRAINT pk_board_status_id PRIMARY KEY (id);
 
-DROP TABLE IF EXISTS public.question_tag;
-CREATE TABLE question_tag (
-    question_id integer NOT NULL,
-    tag_id integer NOT NULL
-);
+ALTER TABLE ONLY board_status
+    ADD CONSTRAINT fk_board_status_board_id FOREIGN KEY (board_id) REFERENCES board(id);
 
-DROP TABLE IF EXISTS public.tag;
-CREATE TABLE tag (
-    id serial NOT NULL,
-    name text
-);
+ALTER TABLE ONLY board_status
+    ADD CONSTRAINT fk_board_status_status_id FOREIGN KEY (status_id) REFERENCES status(id);
 
+ALTER TABLE ONLY card
+    ADD CONSTRAINT fk_card_board_id FOREIGN KEY (board_id) REFERENCES board(id);
 
-ALTER TABLE ONLY answer
-    ADD CONSTRAINT pk_answer_id PRIMARY KEY (id);
+ALTER TABLE ONLY card
+    ADD CONSTRAINT fk_card_status_id FOREIGN KEY (status_id) REFERENCES status(id);
 
-ALTER TABLE ONLY comment
-    ADD CONSTRAINT pk_comment_id PRIMARY KEY (id);
+INSERT INTO board VALUES (1, 'Board 1');
+INSERT INTO board VALUES (2, 'Board 2');
+INSERT INTO board VALUES (3, 'Board 3');
+SELECT pg_catalog.setval('board_id_seq', 3, true);
 
-ALTER TABLE ONLY question
-    ADD CONSTRAINT pk_question_id PRIMARY KEY (id);
+INSERT INTO status VALUES (0, 'new');
+INSERT INTO status VALUES (1, 'in progress');
+INSERT INTO status VALUES (2, 'testing');
+INSERT INTO status VALUES (3, 'newcolumn');
+INSERT INTO status VALUES (4, 'somecolumn');
+SELECT pg_catalog.setval('status_id_seq', 4, true);
 
-ALTER TABLE ONLY question_tag
-    ADD CONSTRAINT pk_question_tag_id PRIMARY KEY (question_id, tag_id);
+INSERT INTO card VALUES(1,1,'new card 1',4,0);
+INSERT INTO card VALUES(2,1,'new card 2',0,1);
+INSERT INTO card VALUES(3,1,'in progress card',1,0);
+INSERT INTO card VALUES(4,1,'planning',2,0);
+INSERT INTO card VALUES(5,1,'done card 1',3,0);
+INSERT INTO card VALUES(16,1,'done card 1',1,0);
+INSERT INTO card VALUES(6,1,'done card 1',3,1);
+INSERT INTO card VALUES(7,2,'new card 1 2',0,0);
+INSERT INTO card VALUES(8,2,'new card 2 2',0,1);
+INSERT INTO card VALUES(9,2,'in progress card 2',1,0);
+INSERT INTO card VALUES(10,2,'planning 2',2,0);
+INSERT INTO card VALUES(11,2,'done card 1 2',3,0);
+INSERT INTO card VALUES(12,2,'done card 1 2',3,1);
+INSERT INTO card VALUES(13,2,'some new card 1 1',3,1);
+SELECT pg_catalog.setval('card_id_seq', 13, true);
 
-ALTER TABLE ONLY tag
-    ADD CONSTRAINT pk_tag_id PRIMARY KEY (id);
-
-ALTER TABLE ONLY comment
-    ADD CONSTRAINT fk_answer_id FOREIGN KEY (answer_id) REFERENCES answer(id);
-
-ALTER TABLE ONLY answer
-    ADD CONSTRAINT fk_question_id FOREIGN KEY (question_id) REFERENCES question(id);
-
-ALTER TABLE ONLY question_tag
-    ADD CONSTRAINT fk_question_id FOREIGN KEY (question_id) REFERENCES question(id);
-
-ALTER TABLE ONLY comment
-    ADD CONSTRAINT fk_question_id FOREIGN KEY (question_id) REFERENCES question(id);
-
-ALTER TABLE ONLY question_tag
-    ADD CONSTRAINT fk_tag_id FOREIGN KEY (tag_id) REFERENCES tag(id);
-
-INSERT INTO question VALUES (0, '2017-04-28 08:29:00', 29, 7, 'How to make lists in Python?', 'I am totally new to this, any hints?', 'none.jpg');
-INSERT INTO question VALUES (1, '2017-04-29 09:19:00', 15, 9, 'Wordpress loading multiple jQuery Versions', 'I developed a plugin that uses the jquery booklet plugin (http://builtbywill.com/booklet/#/) this plugin binds a function to $ so I cann call $(".myBook").booklet();
-I could easy managing the loading order with wp_enqueue_script so first I load jquery then I load booklet so everything is fine.
-BUT in my theme i also using jquery via webpack so the loading order is now following:
-jquery
-booklet
-app.js (bundled file with webpack, including jquery)', 'none.jpg');
-INSERT INTO question VALUES (2, '2017-05-01 2:41:00', 1364, 57, 'Drawing canvas with an image picked with Cordova Camera Plugin', 'I''m getting an image from device and drawing a canvas with filters using Pixi JS. It works all well using computer to get an image. But when I''m on IOS, it throws errors such as cross origin issue, or that I''m trying to use an unknown format.
-', 'none.jpg');
-SELECT pg_catalog.setval('question_id_seq', 2, true);
-INSERT INTO answer VALUES (1, '2017-04-28 16:49:00', 4, 1, 'You need to use brackets: my_list = []', 'none.jpg');
-INSERT INTO answer VALUES (2, '2017-04-25 14:42:00', 35, 1, 'Look it up in the Python docs', 'none.jpg');
-SELECT pg_catalog.setval('answer_id_seq', 2, true);
-
-INSERT INTO comment VALUES (1, 0, NULL, 'Please clarify the question as it is too vague!', '2017-05-01 05:49:00');
-INSERT INTO comment VALUES (2, NULL, 1, 'I think you could use my_list = list() as well.', '2017-05-02 16:55:00');
-SELECT pg_catalog.setval('comment_id_seq', 2, true);
-
-INSERT INTO tag VALUES (1, 'python');
-INSERT INTO tag VALUES (2, 'sql');
-INSERT INTO tag VALUES (3, 'css');
-SELECT pg_catalog.setval('tag_id_seq', 3, true);
-
-INSERT INTO question_tag VALUES (0, 1);
-INSERT INTO question_tag VALUES (1, 3);
-INSERT INTO question_tag VALUES (2, 3);
-
--- INSERT INTO images VALUES (1, '/home/cecylia/Pictures/Screenshot from 2020-03-24 2-44-44.png')
+INSERT INTO board_status VALUES (1, 1, 0);
+INSERT INTO board_status VALUES (2, 1, 1);
+INSERT INTO board_status VALUES (3, 1, 2);
+INSERT INTO board_status VALUES (4, 1, 3);
+INSERT INTO board_status VALUES (5, 1, 4);
+INSERT INTO board_status VALUES (6, 2, 0);
+INSERT INTO board_status VALUES (7, 2, 1);
+INSERT INTO board_status VALUES (8, 2, 2);
+INSERT INTO board_status VALUES (9, 2, 3);
+SELECT pg_catalog.setval('board_status_id_seq', 9, true);
