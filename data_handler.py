@@ -16,14 +16,10 @@ def get_boards():
     Gather all boards
     :return:
     """
-    boards = persistence.get_boards(force=True)
-
-    for board in boards:
-        board['statuses']=board['statuses'].split('_')
-        print(board)
-
+    boards = persistence.get_boards()
 
     return boards
+
 
 def get_board(board_id):
     single_board = [board for board in get_boards() if int(board['id']) == board_id]
@@ -32,13 +28,9 @@ def get_board(board_id):
 
 def get_cards_for_board(board_id):
     persistence.clear_cache()
-    all_cards = persistence.get_cards()
-    matching_cards = []
-    for card in all_cards:
-        if card['board_id'] == str(board_id):
-            # card['status_id'] = get_card_status(card['status_id'])  # Set textual status for the card
-            matching_cards.append(card)
-    return matching_cards
+    all_cards = persistence.get_cards(board_id)
+    return all_cards
+
 
 
 def get_statuses():

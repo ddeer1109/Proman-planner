@@ -1,4 +1,6 @@
+import data_connection
 import csv
+from psycopg2.extras import RealDictCursor
 
 STATUSES_FILE = './data/statuses.csv'
 BOARDS_FILE = './data/boards.csv'
@@ -42,10 +44,39 @@ def clear_cache():
 def get_statuses(force=False):
     return _get_data('statuses', STATUSES_FILE, force)
 
+#
+# def get_boards(force=False):
+#     return _get_data('boards', BOARDS_FILE, force)
 
-def get_boards(force=False):
-    return _get_data('boards', BOARDS_FILE, force)
+@data_connection.connection_handler
+def get_boards(cursor: RealDictCursor):
+    query = f"""
+    SELECT * FROM board
+    """
+    cursor.execute(query)
+
+    dictBoardsList = []
+    for entry in cursor.fetchall():
+        dictBoardsList.append(dict(entry))
+
+    return dictBoardsList
 
 
-def get_cards(force=False):
-    return _get_data('cards', CARDS_FILE, force)
+# def get_cards(force=False):
+#     return _get_data('cards', CARDS_FILE, force)
+
+@data_connection.connection_handler
+def get_cards(cursor: RealDictCursor, board_id):
+    query = f"""
+        SELECT * FROM card
+        WHERE board_id=%(board_id)s
+        ORDER BY index;
+        """
+    cursor.execute(query, {'board_id': board_id})
+
+    dictCardsList = []
+    for entry in cursor.fetchall():
+        dictCardsList.append(dict(entry))
+
+    return dictCardsList
+
