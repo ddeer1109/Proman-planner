@@ -38,8 +38,7 @@ export let dom = {
         dataHandler.getBoards(function(boards) {
 
             dom.showBoards(boards);
-
-            // console.log(boards);
+            console.log("data - > ", dataHandler._data)
         });
     },
     showBoards: function (boards) {
@@ -50,46 +49,33 @@ export let dom = {
         // console.log('container', pageContainer.innerHTML);
 
             // pageContainer.replaceChild(accordion, pageContainer.firstChild);
-        setTimeout(()=>{
+        setTimeout(() => {
             pageContainer.innerHTML = "";
             pageContainer.appendChild(accordion);
         }, 1000)
 
     },
-    loadCards: function (boardId) {
+    loadBoardContent: function (boardId) {
         // retrieves cards and makes showCards called
-        // console.log(dataHandler._data);
         dataHandler.getCardsByBoardId(boardId, function (cards) {
-            console.log(cards, 'dom')
-            const accBody = htmlSelectors.getAccordionBody(boardId);
-            console.log(accBody, 'dom')
-
-            // const cardsStatusesIds = cards.map(card => card.status_id);
-
-            dataHandler.getBoardsStatuses(boardId, function (boardStatuses) {
-                console.log(boardStatuses, 'boardStatuses');
-                dom.createStatusesColumns(accBody, boardStatuses);
-            });
-
-
-            console.log(dataHandler._data)
-
-            const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
-            wait(100).then(() => {
-                console.log('success')
-                dom.showCards(cards, accBody)
-            });
+            dom.initBoardColumnsRenderPromise(boardId)
+                .then(() => {
+                        dom.showCards(cards)
+                })
         });
     },
-    showCards: function (cards, accBody) {
-        for (let card of cards) {
-            const cardNew = document.createElement('div');
-            cardNew.setAttribute('class', 'card');
-            cardNew.setAttribute('data-card', `${card.id}`);
-            cardNew.innerText = card.title;
-            htmlSelectors.getColumn(accBody, card.status_id).appendChild(cardNew);
-        };
-
+    showCards: function (cards) {
+        if (cards.length != 0) {
+            const accBody = htmlSelectors.getAccordionBody(cards[0].board_id);
+            for (let card of cards) {
+                const cardNew = document.createElement('div');
+                cardNew.setAttribute('class', 'card');
+                cardNew.setAttribute('data-card', `${card.id}`);
+                cardNew.innerText = card.title;
+                const column = htmlSelectors.getColumn(accBody, card.status_id);
+                column.appendChild(cardNew);
+            };
+        }
     },
 
     createAccordion: function (boards) {
@@ -103,72 +89,88 @@ export let dom = {
         return accordionContainer;
     },
     createAccordionItem: function (board) {
-        const headerId = `heading${board.id}`;
-        const collapseId = `collapse${board.id}`;
+        this.headerId = `heading${board.id}`;
+        this.collapseId = `collapse${board.id}`;
+        this.board = board;
 
-        const accordionItem = document.createElement('div');
-        accordionItem.setAttribute('class', `accordion-item board${board.id}`);
+        this.accordionItem = document.createElement('div');
+        this.accordionItem.setAttribute('class', `accordion-item board${board.id}`);
 
-        const accordionHeader = document.createElement('h2');
-        accordionHeader.setAttribute('class', 'accordion-header');
-        accordionHeader.setAttribute('id', headerId);
+        this.accordionHeader = document.createElement('h2');
+        dom.setAccordionHeaderAttributes();
 
-        const accordionButton = document.createElement('button');
-        accordionButton.innerText = `${board.title}`
-        accordionButton.setAttribute('class', 'accordion-button collapsed');
-        accordionButton.setAttribute('type', 'button');
-        accordionButton.setAttribute('data-bs-toggle', 'collapse');
-        accordionButton.setAttribute('data-bs-target', `#${collapseId}`);
-        accordionButton.setAttribute('aria-expanded', `true`);
-        accordionButton.setAttribute('aria-controls', `${collapseId}`);
-        accordionButton.addEventListener('click', () => {
-            if (!accordionButton.classList.value.includes('collapsed')) {
-                dom.loadCards(board.id);
-            };
-        });
-        accordionHeader.appendChild(accordionButton);
-        accordionItem.appendChild(accordionHeader);
+        this.accordionButton = document.createElement('button');
+        dom.setAccordionButtonAttributes();
+        this.accordionButton.addEventListener('click', () =>
+            dom.processAccordionItemExpanding(board.id)
+        );
+        this.accordionCollapseBody = document.createElement('div');
+        dom.setAccordionCollapseBody();
 
-        const collapseArea = document.createElement('div');
-        collapseArea.setAttribute('id', collapseId);
-        collapseArea.setAttribute('class', "accordion-collapse collapse");
-        collapseArea.setAttribute('aria-labelledby', headerId);
-        collapseArea.setAttribute('data-bs-parent', `#accordionContainer`);
-
-
-        const accordionBody = document.createElement('div');
-        accordionBody.setAttribute('class', 'accordion-body container d-flex justify-content-around');
-        accordionBody.setAttribute('data-board', `${board.id}`);
-        accordionBody.appendChild(document.createElement('div'));
-        collapseArea.appendChild(accordionBody);
-
-        accordionItem.appendChild(collapseArea);
-        return accordionItem;
+        this.accordionHeader.appendChild(this.accordionButton);
+        this.accordionItem.appendChild(this.accordionHeader);
+        this.accordionItem.appendChild(this.accordionCollapseBody);
+        return this.accordionItem;
     },
     // here comes more features
-    createStatusesColumns(accBody, boardStatuses) {
-        console.log(boardStatuses, '===> statuses')
+    initBoardColumnsRenderPromise(boardId) {
+        const accBody = htmlSelectors.getAccordionBody(boardId);
+        accBody.innerHTML = ""
+        return new Promise(resolve => {
+            dataHandler.getBoardsStatuses(boardId, function (boardStatuses) {
+                console.log('board statuses 11111 -', boardStatuses)
+                dom.createStatusesColumns(accBody, boardStatuses);
+                resolve();
+            });
+        });
+    },
 
-        accBody.innerHTML = "";
+    createStatusesColumns(accBody, boardStatuses) {
 
         for (let status of boardStatuses) {
-                console.log(status, '> single status')
-
                 const colDiv = document.createElement('div');
-                colDiv.classList.add(`status-column`);
-                colDiv.setAttribute('data-column', status.id);
+
                 const statusTitle = document.createElement('h4');
                 statusTitle.innerText = status.title;
+                colDiv.classList.add(`status-column`);
+                colDiv.setAttribute('data-column', status.id);
                 colDiv.appendChild(statusTitle);
+
+
                 const statusContent = document.createElement('div');
                 statusContent.setAttribute('class', 'column-content');
                 colDiv.appendChild(statusContent);
                 accBody.appendChild(colDiv);
+                // console.log(accBody, "status column")
             // }
         }
     },
+    setAccordionHeaderAttributes() {
+        this.accordionHeader.setAttribute('class', 'accordion-header');
+        this.accordionHeader.setAttribute('id', this.headerId);
+    },
+    setAccordionButtonAttributes() {
+        this.accordionButton.innerText = `${this.board.title}`;
+        this.accordionButton.setAttribute('class', 'accordion-button collapsed');
+        this.accordionButton.setAttribute('type', 'button');
+        this.accordionButton.setAttribute('data-bs-toggle', 'collapse');
+        this.accordionButton.setAttribute('data-bs-target', `#${this.collapseId}`);
+        this.accordionButton.setAttribute('aria-expanded', `false`);
+        this.accordionButton.setAttribute('aria-controls', this.collapseId);
+        this.accordionButton.setAttribute('click-cooldown', 'false');
+    },
+    processAccordionItemExpanding(board_id) {
+
+        if (this.accordionButton.classList.value.includes('collapsed')
+            && (this.accordionButton.getAttribute('click-cooldown') != 'true')) {
+            this.accordionButton.setAttribute('click-cooldown', "true");
+            dom.loadBoardContent(board_id);
+            setTimeout(() => {
+                this.accordionButton.removeAttribute('click-cooldown');
+            }, 1000)
+        };
+    },
     createAddBoardButton() {
-        console.log("board button <<<<<")
         const pageHeader = document.getElementById('page-title');
         const addingButton = document.createElement('button');
         addingButton.innerText = "Add board";
@@ -177,12 +179,29 @@ export let dom = {
         pageHeader.insertAdjacentElement('afterend', addingButton);
     },
     showAddBoardModal() {
-        const bootstrapHtml = `
+        const modal = document.createElement('div');
+        modal.setAttribute('class', 'display-modal');
+        modal.insertAdjacentHTML('afterbegin', dom.getModalInputForm());
+        document.body.appendChild(modal);
+
+        const cancelButton = document.getElementById('buttonCancel');
+        cancelButton.addEventListener('click', modal.remove)
+
+        const form = document.getElementById('form');
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const inputValue = document.getElementById('input').value;
+            dataHandler.createNewBoard({'title': inputValue}, dom.loadBoards);
+            modal.remove();
+        });
+    },
+    getModalInputForm() {
+        return `
         <div class="container-modal-form">
             <form id="form" class="row g-3" method="post">
                 <div class="col">
                     <label for="inputTitle" class="text-light">Title</label>
-                    <input id="input" type="text" name="title" class="form-control" id="inputTitle">
+                    <input id="input" type="text" class="form-control" id="inputTitle">
                 </div>  
             <div class="row g-3">
                 <div class="col flex-center-middle">
@@ -193,26 +212,17 @@ export let dom = {
             </form>
         </div>
         `
-        const modal = document.createElement('div');
-        modal.setAttribute('class', 'display-modal');
-        modal.insertAdjacentHTML('afterbegin', bootstrapHtml);
-        document.body.appendChild(modal);
-        const cancelButton = document.getElementById('buttonCancel');
-        cancelButton.addEventListener('click', () => {
-            modal.remove();
-        })
-        const submitButton = document.getElementById('buttonSubmit');
+    },
 
-        const form = document.getElementById('form');
-        form.addEventListener('submit', (event) => {
-            event.preventDefault();
-            console.log('submit event');
-            dataHandler.createNewBoard(document.getElementById('input').value, dom.getBoards)
-        });
-        // submitButton.addEventListener('click', (event) => {
-        //     form.preventDefault();
-        //     form.submit();
-        //     console.log('submit');
-        // })
+    setAccordionCollapseBody() {
+        this.accordionCollapseBody.setAttribute('id', this.collapseId);
+        this.accordionCollapseBody.setAttribute('class', "accordion-collapse collapse");
+        this.accordionCollapseBody.setAttribute('aria-labelledby', this.headerId);
+        this.accordionCollapseBody.setAttribute('data-bs-parent', `#accordionContainer`);
+
+        const accordionBody = document.createElement('div');
+        accordionBody.setAttribute('class', 'accordion-body container d-flex justify-content-around');
+        accordionBody.setAttribute('data-board', `${this.board.id}`);
+        this.accordionCollapseBody.appendChild(accordionBody);
     }
 };

@@ -38,3 +38,8 @@ def get_statuses():
 
 def get_board_statuses(board_id):
     return persistence.get_board_statuses(board_id)
+
+
+def add_new_board(board_data):
+    board_id = persistence.add_new_board(board_data)
+    persistence.add_default_statuses(board_id)

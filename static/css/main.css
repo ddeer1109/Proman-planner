@@ -1,17 +1,65 @@
-#boards {
-    background-color: #f8f8f8;
-    padding: 20px;
+body {
+    height: 110vh;
+    background-color: #222222;
+    color:white;
 }
+
+#boards {
+    /*background-color: #f8f8f8;*/
+    background-color: black;
+    color: white;
+    padding: 20px;
+    width: 90%;
+}
+
 
 .card {
     width: 10rem;
     padding: 0.5rem;
     margin-top: 4px;
+    animation-name: modalopen;
+    animation-duration: 1s;
+    background-color: black;
+    color: white;
+}
+
+h2 button {
+    background-color: black;
+    color: white;
+}
+
+.accordion-button {
+    background-color: black;
+    color: white;
+}
+
+/*accordion-collapse.collapse.show {*/
+/*    animation-name: heightAnimation;*/
+/*    animation-duration: 5s;*/
+/*    animation-timing-function: ease-in;*/
+/*}*/
+
+.column-content {
+    min-height: 5vh;
+    animation-name: heightAnimation, modalopen;
+    padding: 0.8rem;
+    animation-duration: 1.5s, 1s;
+    min-width: 10rem;
+    min-height: 30vh;
+    background-color: #f8f8f8;
 
 }
 
 div.status-column h4 {
     text-align: center;
+    margin: 0.5rem 0;
+    animation-name: modalopen;
+    animation-duration: 2s;
+}
+
+.accordion-body {
+    min-height: 25vh;
+    background-color: black;
 }
 
 #page-title {
@@ -42,3 +90,22 @@ div.status-column h4 {
     justify-content: center;
     align-items: center;
 }
+
+
+@keyframes modalopen {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+@keyframes heightAnimation {
+    from {
+      min-height: 5vh;
+    }
+    to {
+      min-height: 30vh;
+    }
+  }

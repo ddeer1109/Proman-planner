@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, url_for, request, jsonify
 from util import json_response
 
 import data_handler
@@ -59,8 +59,8 @@ def get_board_statuses(board_id: int):
 
 @app.route("/new-board", methods=["POST"])
 @json_response
-def post_new_board(board_title: str):
-
+def post_new_board():
+    data_handler.add_new_board(request.get_json())
     return data_handler.get_boards()
 
 

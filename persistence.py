@@ -106,3 +106,27 @@ def get_board_statuses(cursor: RealDictCursor, board_id):
         dictBoardStatuses.append(dict(entry))
 
     return dictBoardStatuses
+
+@data_connection.connection_handler
+def add_new_board(cursor: RealDictCursor, board_data):
+    command = f"""
+    INSERT INTO board(title)
+    VALUES (%(title)s)
+    RETURNING id
+    """
+
+    cursor.execute(command, board_data)
+    return cursor.fetchone()['id']
+
+
+@data_connection.connection_handler
+def add_default_statuses(cursor: RealDictCursor, board_id):
+    command = f"""
+    INSERT INTO board_status(board_id, status_id)
+    VALUES (%(board_id)s, 1),
+     (%(board_id)s, 2),
+     (%(board_id)s, 3),
+     (%(board_id)s, 4)
+    """
+
+    cursor.execute(command, {'board_id': board_id})
