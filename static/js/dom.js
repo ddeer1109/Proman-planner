@@ -13,7 +13,6 @@ export let htmlSelectors = {
         return htmlSelectors.getBoardById(boardId).querySelector('.row').childNodes;
     },
     getAccordionBody(boardId) {
-
         return document.querySelector(`div[data-board="${boardId}"]`);
     },
     getColumn(accBody, statusId) {
@@ -36,7 +35,6 @@ export let dom = {
     loadBoards: function () {
         // retrieves boards and makes showBoards called
         dataHandler.getBoards(function(boards) {
-
             dom.showBoards(boards);
             console.log("data - > ", dataHandler._data)
         });
@@ -52,7 +50,7 @@ export let dom = {
         setTimeout(() => {
             pageContainer.innerHTML = "";
             pageContainer.appendChild(accordion);
-        }, 1000)
+        }, 10)
 
     },
     loadBoardContent: function (boardId) {
@@ -67,6 +65,7 @@ export let dom = {
     showCards: function (cards) {
         if (cards.length != 0) {
             const accBody = htmlSelectors.getAccordionBody(cards[0].board_id);
+            console.log(accBody, "acc body - show cards")
             for (let card of cards) {
                 const cardNew = document.createElement('div');
                 cardNew.setAttribute('class', 'card');
@@ -115,7 +114,7 @@ export let dom = {
     // here comes more features
     initBoardColumnsRenderPromise(boardId) {
         const accBody = htmlSelectors.getAccordionBody(boardId);
-        accBody.innerHTML = ""
+        accBody.innerHTML = "";
         return new Promise(resolve => {
             dataHandler.getBoardsStatuses(boardId, function (boardStatuses) {
                 console.log('board statuses 11111 -', boardStatuses)
@@ -135,7 +134,6 @@ export let dom = {
                 colDiv.classList.add(`status-column`);
                 colDiv.setAttribute('data-column', status.id);
                 colDiv.appendChild(statusTitle);
-
 
                 const statusContent = document.createElement('div');
                 statusContent.setAttribute('class', 'column-content');
@@ -159,16 +157,33 @@ export let dom = {
         this.accordionButton.setAttribute('aria-controls', this.collapseId);
         this.accordionButton.setAttribute('click-cooldown', 'false');
     },
+    setAccordionCollapseBody() {
+        this.accordionCollapseBody.setAttribute('id', this.collapseId);
+        this.accordionCollapseBody.setAttribute('class', "accordion-collapse collapse");
+        this.accordionCollapseBody.setAttribute('aria-labelledby', this.headerId);
+        this.accordionCollapseBody.setAttribute('data-bs-parent', `#accordionContainer`);
+
+        const accordionBody = document.createElement('div');
+        accordionBody.setAttribute('class', 'accordion-body container d-flex justify-content-around');
+        accordionBody.setAttribute('data-board', `${this.board.id}`);
+        this.accordionCollapseBody.appendChild(accordionBody);
+    },
     processAccordionItemExpanding(board_id) {
 
-        if (this.accordionButton.classList.value.includes('collapsed')
-            && (this.accordionButton.getAttribute('click-cooldown') != 'true')) {
-            this.accordionButton.setAttribute('click-cooldown', "true");
-            dom.loadBoardContent(board_id);
-            setTimeout(() => {
-                this.accordionButton.removeAttribute('click-cooldown');
-            }, 1000)
-        };
+        // if ((this.accordionButton.classList.value.includes('collapsed'))
+        //     && (this.accordionButton.getAttribute('click-cooldown') != 'true')) {
+        if (!this.accordionButton.disabled) {
+            console.log(board_id, "expand accordion")
+                // this.accordionButton.setAttribute('click-cooldown', "true");
+                this.accordionButton.disabled = true;
+                dom.loadBoardContent(board_id);
+                setTimeout(() => {
+                    this.accordionButton.disabled = false;
+                    // this.accordionButton.removeAttribute('click-cooldown');
+                }, 1000)
+        }
+
+        // };
     },
     createAddBoardButton() {
         const pageHeader = document.getElementById('page-title');
@@ -214,15 +229,5 @@ export let dom = {
         `
     },
 
-    setAccordionCollapseBody() {
-        this.accordionCollapseBody.setAttribute('id', this.collapseId);
-        this.accordionCollapseBody.setAttribute('class', "accordion-collapse collapse");
-        this.accordionCollapseBody.setAttribute('aria-labelledby', this.headerId);
-        this.accordionCollapseBody.setAttribute('data-bs-parent', `#accordionContainer`);
 
-        const accordionBody = document.createElement('div');
-        accordionBody.setAttribute('class', 'accordion-body container d-flex justify-content-around');
-        accordionBody.setAttribute('data-board', `${this.board.id}`);
-        this.accordionCollapseBody.appendChild(accordionBody);
-    }
 };

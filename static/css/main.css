@@ -62,6 +62,7 @@ div.status-column h4 {
     background-color: black;
 }
 
+
 #page-title {
     text-align: center;
     margin-bottom: 1rem;
@@ -90,7 +91,6 @@ div.status-column h4 {
     justify-content: center;
     align-items: center;
 }
-
 
 @keyframes modalopen {
     from {

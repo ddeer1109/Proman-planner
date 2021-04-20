@@ -64,8 +64,6 @@ def post_new_board():
     return data_handler.get_boards()
 
 
-
-
 def main():
     app.run(debug=True)
 
