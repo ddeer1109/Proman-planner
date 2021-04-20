@@ -9,9 +9,14 @@ body {
     background-color: black;
     color: white;
     padding: 20px;
-    width: 90%;
+    min-width: 90%;
 }
 
+.add-col-btn {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
 
 .card {
     width: 10rem;

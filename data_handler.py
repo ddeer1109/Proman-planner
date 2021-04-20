@@ -43,3 +43,8 @@ def get_board_statuses(board_id):
 def add_new_board(board_data):
     board_id = persistence.add_new_board(board_data)
     persistence.add_default_statuses(board_id)
+
+
+def add_new_column(column_data):
+    status_id = persistence.add_new_column(column_data)
+    persistence.add_column_to_boards_columns(column_data, status_id)

@@ -24,8 +24,6 @@ export let htmlSelectors = {
 };
 
 
-
-
 export let dom = {
     init: function () {
         // This function should run once, when the page is loaded.
@@ -51,7 +49,6 @@ export let dom = {
             pageContainer.innerHTML = "";
             pageContainer.appendChild(accordion);
         }, 10)
-
     },
     loadBoardContent: function (boardId) {
         // retrieves cards and makes showCards called
@@ -163,9 +160,22 @@ export let dom = {
         this.accordionCollapseBody.setAttribute('aria-labelledby', this.headerId);
         this.accordionCollapseBody.setAttribute('data-bs-parent', `#accordionContainer`);
 
+        const addColumnDiv = document.createElement('div');
+        addColumnDiv.setAttribute('class', "add-col-btn")
+        const addColumnButton = document.createElement('button');
+        const boardId = this.board.id;
+        addColumnButton.addEventListener('click', () => {
+            dom.showAddColumnModal(boardId);
+            console.log("click new column", boardId)
+        });
+        addColumnButton.setAttribute('class', 'btn btn-success');
+        addColumnButton.innerText = "Add column";
+        addColumnDiv.appendChild(addColumnButton);
+
         const accordionBody = document.createElement('div');
         accordionBody.setAttribute('class', 'accordion-body container d-flex justify-content-around');
         accordionBody.setAttribute('data-board', `${this.board.id}`);
+        this.accordionCollapseBody.appendChild(addColumnDiv);
         this.accordionCollapseBody.appendChild(accordionBody);
     },
     processAccordionItemExpanding(board_id) {
@@ -194,14 +204,7 @@ export let dom = {
         pageHeader.insertAdjacentElement('afterend', addingButton);
     },
     showAddBoardModal() {
-        const modal = document.createElement('div');
-        modal.setAttribute('class', 'display-modal');
-        modal.insertAdjacentHTML('afterbegin', dom.getModalInputForm());
-        document.body.appendChild(modal);
-
-        const cancelButton = document.getElementById('buttonCancel');
-        cancelButton.addEventListener('click', modal.remove)
-
+        const modal = dom.createModalDiv('Board title: ');
         const form = document.getElementById('form');
         form.addEventListener('submit', (event) => {
             event.preventDefault();
@@ -210,12 +213,22 @@ export let dom = {
             modal.remove();
         });
     },
-    getModalInputForm() {
+    showAddColumnModal(boardId) {
+        const modal = dom.createModalDiv('Column name: ');
+        const form = document.getElementById('form');
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const inputValue = document.getElementById('input').value;
+            dataHandler.createNewColumn({'title': inputValue, 'boardId': boardId}, dom.loadBoards);
+            modal.remove();
+        });
+    },
+    getModalInputForm(labelText) {
         return `
         <div class="container-modal-form">
             <form id="form" class="row g-3" method="post">
                 <div class="col">
-                    <label for="inputTitle" class="text-light">Title</label>
+                    <label for="inputTitle" class="text-light">${labelText}</label>
                     <input id="input" type="text" class="form-control" id="inputTitle">
                 </div>  
             <div class="row g-3">
@@ -228,6 +241,19 @@ export let dom = {
         </div>
         `
     },
+    createModalDiv(labelText) {
+        const modal = document.createElement('div');
+        modal.setAttribute('class', 'display-modal');
+        modal.insertAdjacentHTML('afterbegin', dom.getModalInputForm(labelText));
+        document.body.appendChild(modal);
 
+        const cancelButton = document.getElementById('buttonCancel');
+        console.log(cancelButton, "cancel button");
+        cancelButton.addEventListener('click', () => {
+            console.log(modal, "modal");
+            modal.remove()
+        });
+        return modal;
+    },
 
 };

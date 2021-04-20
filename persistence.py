@@ -130,3 +130,25 @@ def add_default_statuses(cursor: RealDictCursor, board_id):
     """
 
     cursor.execute(command, {'board_id': board_id})
+
+
+@data_connection.connection_handler
+def add_new_column(cursor: RealDictCursor, column_data):
+    command = f"""
+    INSERT INTO status(title)
+    VALUES (%(title)s)
+    RETURNING id
+    """
+
+    cursor.execute(command, {'title': column_data['title']})
+    return cursor.fetchone()['id']
+
+
+@data_connection.connection_handler
+def add_column_to_boards_columns(cursor: RealDictCursor, column_data, status_id):
+    command = f"""
+        INSERT INTO board_status(board_id, status_id)
+        VALUES (%(board_id)s, %(status_id)s)
+        """
+
+    cursor.execute(command, {'board_id': column_data['boardId'], 'status_id': status_id})

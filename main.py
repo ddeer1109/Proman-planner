@@ -64,6 +64,13 @@ def post_new_board():
     return data_handler.get_boards()
 
 
+@app.route("/new-column", methods=["POST"])
+@json_response
+def post_new_column():
+    print(request.get_json(), "json!")
+    data_handler.add_new_column(request.get_json())
+
+
 def main():
     app.run(debug=True)
 
