@@ -62,7 +62,6 @@ export let dom = {
     showCards: function (cards) {
         if (cards.length != 0) {
             const accBody = htmlSelectors.getAccordionBody(cards[0].board_id);
-            console.log(accBody, "acc body - show cards")
             for (let card of cards) {
                 const cardNew = document.createElement('div');
                 cardNew.setAttribute('class', 'card');
@@ -73,7 +72,6 @@ export let dom = {
             };
         }
     },
-
     createAccordion: function (boards) {
         const accordionContainer = document.createElement('div');
         accordionContainer.setAttribute('class', 'accordion');
@@ -90,17 +88,16 @@ export let dom = {
         this.board = board;
 
         this.accordionItem = document.createElement('div');
-        this.accordionItem.setAttribute('class', `accordion-item board${board.id}`);
-
         this.accordionHeader = document.createElement('h2');
-        dom.setAccordionHeaderAttributes();
-
         this.accordionButton = document.createElement('button');
+        this.accordionCollapseBody = document.createElement('div');
+
+        this.accordionItem.setAttribute('class', `accordion-item board${board.id}`);
+        dom.setAccordionHeaderAttributes();
         dom.setAccordionButtonAttributes();
         this.accordionButton.addEventListener('click', () =>
             dom.processAccordionItemExpanding(board.id)
         );
-        this.accordionCollapseBody = document.createElement('div');
         dom.setAccordionCollapseBody();
 
         this.accordionHeader.appendChild(this.accordionButton);
@@ -125,19 +122,20 @@ export let dom = {
 
         for (let status of boardStatuses) {
                 const colDiv = document.createElement('div');
-
                 const statusTitle = document.createElement('h4');
-                statusTitle.innerText = status.title;
-                colDiv.classList.add(`status-column`);
-                colDiv.setAttribute('data-column', status.id);
-                colDiv.appendChild(statusTitle);
-
                 const statusContent = document.createElement('div');
+
+                statusTitle.innerText = status.title;
                 statusContent.setAttribute('class', 'column-content');
+
+                colDiv.classList.add(`status-column`);
+                colDiv.classList.add(`flex-fill`);
+                colDiv.setAttribute('data-column', status.id);
+
+                colDiv.appendChild(statusTitle);
                 colDiv.appendChild(statusContent);
+
                 accBody.appendChild(colDiv);
-                // console.log(accBody, "status column")
-            // }
         }
     },
     setAccordionHeaderAttributes() {
@@ -163,43 +161,35 @@ export let dom = {
         const addColumnDiv = document.createElement('div');
         addColumnDiv.setAttribute('class', "add-col-btn")
         const addColumnButton = document.createElement('button');
+
         const boardId = this.board.id;
         addColumnButton.addEventListener('click', () => {
             dom.showAddColumnModal(boardId);
-            console.log("click new column", boardId)
         });
-        addColumnButton.setAttribute('class', 'btn btn-success');
+        addColumnButton.setAttribute('class', 'btn btn-light');
         addColumnButton.innerText = "Add column";
         addColumnDiv.appendChild(addColumnButton);
 
         const accordionBody = document.createElement('div');
-        accordionBody.setAttribute('class', 'accordion-body container d-flex justify-content-around');
+        accordionBody.setAttribute('class', 'accordion-body container flex-center-middle');
         accordionBody.setAttribute('data-board', `${this.board.id}`);
-        this.accordionCollapseBody.appendChild(addColumnDiv);
         this.accordionCollapseBody.appendChild(accordionBody);
+        this.accordionCollapseBody.appendChild(addColumnDiv);
     },
     processAccordionItemExpanding(board_id) {
-
-        // if ((this.accordionButton.classList.value.includes('collapsed'))
-        //     && (this.accordionButton.getAttribute('click-cooldown') != 'true')) {
         if (!this.accordionButton.disabled) {
-            console.log(board_id, "expand accordion")
-                // this.accordionButton.setAttribute('click-cooldown', "true");
-                this.accordionButton.disabled = true;
-                dom.loadBoardContent(board_id);
-                setTimeout(() => {
-                    this.accordionButton.disabled = false;
-                    // this.accordionButton.removeAttribute('click-cooldown');
-                }, 1000)
+            this.accordionButton.disabled = true;
+            dom.loadBoardContent(board_id);
+            setTimeout(() => {
+                this.accordionButton.disabled = false;
+            }, 1000)
         }
-
-        // };
     },
     createAddBoardButton() {
         const pageHeader = document.getElementById('page-title');
         const addingButton = document.createElement('button');
         addingButton.innerText = "Add board";
-        addingButton.setAttribute('class', 'btn btn-success');
+        addingButton.setAttribute('class', 'btn btn-light m-1');
         addingButton.addEventListener('click', dom.showAddBoardModal)
         pageHeader.insertAdjacentElement('afterend', addingButton);
     },
@@ -219,8 +209,10 @@ export let dom = {
         form.addEventListener('submit', (event) => {
             event.preventDefault();
             const inputValue = document.getElementById('input').value;
-            dataHandler.createNewColumn({'title': inputValue, 'boardId': boardId}, dom.loadBoards);
-            modal.remove();
+            dataHandler.createNewColumn({'title': inputValue, 'boardId': boardId}, () => {
+                modal.remove();
+                dom.loadBoardContent(boardId);
+            });
         });
     },
     getModalInputForm(labelText) {

@@ -7,50 +7,53 @@ body {
 #boards {
     /*background-color: #f8f8f8;*/
     background-color: black;
-    color: white;
+    color: #f8f8f8;
     padding: 20px;
-    min-width: 90%;
+    /*min-width: 90%;*/
 }
 
-.add-col-btn {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-}
 
 .card {
-    width: 10rem;
+    min-width: 8rem;
     padding: 0.5rem;
     margin-top: 4px;
     animation-name: modalopen;
     animation-duration: 1s;
     background-color: black;
-    color: white;
+    color: #f8f8f8;
 }
 
 h2 button {
     background-color: black;
-    color: white;
+    color: #f8f8f8;
 }
 
 .accordion-button {
+    display: block;
     background-color: black;
-    color: white;
+    color: #f8f8f8;
+    font-size: 1.3rem;
+    text-align: center;
 }
 
-/*accordion-collapse.collapse.show {*/
-/*    animation-name: heightAnimation;*/
-/*    animation-duration: 5s;*/
-/*    animation-timing-function: ease-in;*/
-/*}*/
+.accordion-button:not(.collapsed) {
+    color: black;
+    background-color: #f8f8f8;
+    box-shadow: inset 0 -1px 0 rgb(0 0 0 / 13%);
+}
+
+accordion-collapse.collapse.show {
+    animation-name: heightAnimation, modalopen;
+    animation-duration: 1s, 2s;
+    animation-timing-function: ease-in;
+}
 
 .column-content {
-    min-height: 5vh;
     animation-name: heightAnimation, modalopen;
     padding: 0.8rem;
-    animation-duration: 1.5s, 1s;
-    min-width: 10rem;
-    min-height: 30vh;
+    animation-duration: 2s, 1.5s;
+    min-width: 8rem;
+    min-height: 50vh;
     background-color: #f8f8f8;
 
 }
@@ -59,18 +62,40 @@ div.status-column h4 {
     text-align: center;
     margin: 0.5rem 0;
     animation-name: modalopen;
-    animation-duration: 2s;
+    animation-duration: 1s;
+}
+
+.status-column {
+    margin: 0.5em 0.5em;
 }
 
 .accordion-body {
-    min-height: 25vh;
+    min-height: 30vh;
+    width: 100%;
     background-color: black;
+    overflow-x: paged-x;
 }
 
 
 #page-title {
     text-align: center;
     margin-bottom: 1rem;
+}
+
+
+.add-col-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /*padding: 20px;*/
+    padding-bottom: 20px;
+    background-color:black;
+    /*width: auto;*/
+}
+
+.add-col-btn button {
+    animation-name: modalopen;
+    animation-duration: 3s;
 }
 
 .display-modal {
@@ -93,8 +118,8 @@ div.status-column h4 {
 
 .flex-center-middle {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: space-around;
+    align-items: flex-end;
 }
 
 @keyframes modalopen {
@@ -111,6 +136,6 @@ div.status-column h4 {
       min-height: 5vh;
     }
     to {
-      min-height: 30vh;
+      min-height: 50vh;
     }
   }
