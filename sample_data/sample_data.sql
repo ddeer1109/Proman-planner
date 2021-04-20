@@ -60,16 +60,16 @@ ALTER TABLE ONLY card
 ALTER TABLE ONLY card
     ADD CONSTRAINT fk_card_status_id FOREIGN KEY (status_id) REFERENCES status(id);
 
-INSERT INTO board VALUES (1, 'Board 1');
-INSERT INTO board VALUES (2, 'Board 2');
-INSERT INTO board VALUES (3, 'Board 3');
+INSERT INTO board VALUES (1, 'Proman project');
+INSERT INTO board VALUES (2, 'PA web');
+INSERT INTO board VALUES (3, 'Not related with programming');
 SELECT pg_catalog.setval('board_id_seq', 3, true);
 
 INSERT INTO status VALUES (1, 'new');
 INSERT INTO status VALUES (2, 'in progress');
 INSERT INTO status VALUES (3, 'testing');
-INSERT INTO status VALUES (4, 'newcolumn');
-INSERT INTO status VALUES (5, 'somecolumn');
+INSERT INTO status VALUES (4, 'done');
+INSERT INTO status VALUES (5, 'extra');
 SELECT pg_catalog.setval('status_id_seq', 4, true);
 
 INSERT INTO card VALUES(1,1,'new card 1',5,0);

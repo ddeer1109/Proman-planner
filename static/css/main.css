@@ -32,14 +32,21 @@ h2 button {
     display: block;
     background-color: black;
     color: #f8f8f8;
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     text-align: center;
+}
+
+.accordion-button:hover {
+    background-color: rgba(22, 22, 22, 0.45);
+}
+
+.btn.btn-light:hover {
+    background-color: rgba(255, 255, 255, 0.7);
 }
 
 .accordion-button:not(.collapsed) {
     color: black;
     background-color: #f8f8f8;
-    box-shadow: inset 0 -1px 0 rgb(0 0 0 / 13%);
 }
 
 accordion-collapse.collapse.show {
@@ -60,6 +67,7 @@ accordion-collapse.collapse.show {
 
 div.status-column h4 {
     text-align: center;
+    font-weight: lighter;
     margin: 0.5rem 0;
     animation-name: modalopen;
     animation-duration: 1s;
