@@ -48,3 +48,6 @@ def add_new_board(board_data):
 def add_new_column(column_data):
     status_id = persistence.add_new_column(column_data)
     persistence.add_column_to_boards_columns(column_data, status_id)
+
+def add_new_card(card_data):
+    persistence.add_new_card(card_data)

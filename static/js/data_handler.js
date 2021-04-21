@@ -97,6 +97,10 @@ export let dataHandler = {
     },
     createNewCard: function (cardData, callback) {
         // creates new card, saves it and calls the callback function with its data
+
+        this._api_post('/new-card', cardData, () => {
+            callback();
+        })
     },
     // here comes more features
     createNewColumn: function (columnData, callback) {

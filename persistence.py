@@ -152,3 +152,15 @@ def add_column_to_boards_columns(cursor: RealDictCursor, column_data, status_id)
         """
 
     cursor.execute(command, {'board_id': column_data['boardId'], 'status_id': status_id})
+
+@data_connection.connection_handler
+def add_new_card(cursor: RealDictCursor, card_data):
+
+    print(card_data)
+    command = f"""
+        INSERT INTO card(board_id,title,status_id,index)
+        VALUES (%(board_id)s, %(title)s, %(status_id)s, 
+        ((select max(index) from card where board_id=%(board_id)s and status_id=%(status_id)s)) + 1)
+    """
+
+    cursor.execute(command, card_data)
