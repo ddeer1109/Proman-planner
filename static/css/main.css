@@ -109,9 +109,13 @@ h2 button {
 }
 
 div.status-column h4 {
+    border-top: 1px solid #222222;
+    border-left: 1px solid #222222;
+    border-right: 1px solid #222222;
+    margin-bottom: 0px;
     text-align: center;
     font-weight: lighter;
-    margin: 0.5rem 0;
+    padding: 0.5rem 0;
     animation-name: modalopen;
     animation-duration: 1s;
     animation-delay: 0.25s;
@@ -137,6 +141,7 @@ div.status-column h4 {
 
 
 .add-col-btn {
+    min-height: 2em;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -146,9 +151,12 @@ div.status-column h4 {
     /*width: auto;*/
 }
 
-.add-col-btn button {
+.add-col-btn button,
+.add-col-btn button.btn-light,
+.add-col-btn form {
     animation-name: modalopen;
-    animation-duration: 3s;
+    animation-fill-mode: both;
+    animation-duration: 1s;
 }
 
 .display-modal {
@@ -169,15 +177,58 @@ div.status-column h4 {
     align-items: center;
 }
 
+.container-modal-form div form input,
+.container-modal-form button {
+    margin-right: 10px;
+}
+
+.flex-add-card {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
 .flex-center-middle {
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
     align-items: flex-end;
+}
+
+/*.form-flex {*/
+/*    display:block;*/
+/*    !*justify-content: center;*!*/
+/*    !*align-items: center;*!*/
+/*}*/
+
+.add-card-modal {
+    position: relative;
+}
+
+.add-card-modal form {
+    position:absolute;
+    top:0;
+    right:0;
+}
+.add-card-modal form button {
+    /*width: 20%;*/
+    margin-left: 5px;
+}
+
+form {
+    display:block;
+}
+
+.btn-success {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+}
+
+#input {
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
 }
 
 @keyframes modalopen {
     from {
-        /*display:block;*/
       opacity: 0;
     }
     to {

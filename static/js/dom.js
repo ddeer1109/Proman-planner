@@ -209,15 +209,8 @@ export let dom = {
         const colDiv = document.createElement('div');
         const statusTitle = document.createElement('h4');
         const statusContent = document.createElement('div');
-        const buttonAddCard = document.createElement('button')
+        const buttonAddCard = dom.createAddCardButton(boardId, status.id)
 
-        buttonAddCard.setAttribute('class', 'btn btn-primary btn-sm');
-        buttonAddCard.innerText = 'Add Card';
-        buttonAddCard.style.width = '100%';
-
-        buttonAddCard.addEventListener('click', () => {
-            dom.showAddCardModal(boardId, status.id);
-        })
         statusContent.appendChild(buttonAddCard)
         statusTitle.innerText = status.title;
         statusContent.setAttribute('class', 'column-content');
@@ -252,26 +245,29 @@ export let dom = {
     },
     // TODO - to refactor
     showAddColumnModal(boardId) {
-        const modal = dom.createModalDiv('Column name: ');
+        const modal = dom.createAddColumnModal('Column name: ', boardId);
         const form = document.getElementById('form');
         form.addEventListener('submit', (event) => {
             event.preventDefault();
-            const inputValue = document.getElementById('input').value;
-            dataHandler.createNewColumn({'title': inputValue, 'boardId': boardId}, (newColumn) => {
+            const inputField = document.getElementById('input');
+            dataHandler.createNewColumn({'title': inputField.value, 'boardId': boardId}, (newColumn) => {
                 dom.appendColumnToBoard(boardId, newColumn);
+                modal.replaceWith(dom.createAddColumnButton(boardId));
             });
-            modal.remove();
         });
     },
     // TODO - to refactor
     showAddCardModal(boardId, columnId) {
-        const modal = dom.createModalDiv('Card name: ');
+        const modal = dom.createAddCardModal("Card title: ", boardId, columnId);
         const form = document.getElementById('form');
         form.addEventListener('submit', (event) => {
             event.preventDefault();
             const inputValue = document.getElementById('input').value;
             const dataObject = {'title': inputValue, 'board_id': boardId, 'status_id': columnId};
             dataHandler.createNewCard(dataObject, (card) => {
+                const button = dom.createAddCardButton(boardId, columnId);
+                console.log('butt', button)
+                modal.replaceWith(button);
                 dom.appendNewCardToColumn(boardId, columnId, card);
             })
             modal.remove();
@@ -279,37 +275,87 @@ export let dom = {
     },
     getModalInputForm(labelText) {
         return `
-        <div class="container-modal-form">
-            <form id="form" class="row g-3" method="post">
-                <div class="col">
-                    <label for="inputTitle" class="text-light">${labelText}</label>
-                    <input id="input" type="text" class="form-control" id="inputTitle">
-                </div>  
-            <div class="row g-3">
-                <div class="col flex-center-middle">
-                    <button id="buttonSubmit" type="submit" class="btn btn-success m-3">Confirm</button>
-                    <button id="buttonCancel" type="button" class="btn btn-warning m-3">Cancel</button>
+            <form id="form" class="flex-center-middle g-1" method="post">
+                <div class="flex-center-middle">
+                    <div class="">
+                        <label for="inputTitle" class="text-light">${labelText}</label>
+                        <input id="input" type="text" class="form-control" id="inputTitle">
+                    </div>  
+                    <div class="">
+                        <button id="buttonSubmit" type="submit" class="btn btn-success">Confirm</button>
+                        <button id="buttonCancel" type="button" class="btn btn-warning">Cancel</button>
+                    </div>
                 </div>
-            </div>
             </form>
-        </div>
         `
     },
     createModalDiv(labelText) {
         const modal = document.createElement('div');
-        modal.setAttribute('class', 'display-modal');
+        const formContainer = document.createElement('div');
         modal.insertAdjacentHTML('afterbegin', dom.getModalInputForm(labelText));
-        document.body.appendChild(modal);
-
+        formContainer.setAttribute('class', 'container-modal-form display-modal');
+        formContainer.appendChild(modal);
+        document.body.appendChild(formContainer);
         const cancelButton = document.getElementById('buttonCancel');
-        // console.log(cancelButton, "cancel button");
+        const inputField = document.getElementById('input');
+        inputField.select();
+        inputField.focus();
+
+        inputField.addEventListener('focusout', () => {
+            formContainer.remove();
+        });
+
         cancelButton.addEventListener('click', () => {
-            // console.log(modal, "modal");
-            modal.remove()
+            formContainer.remove();
         });
         return modal;
     },
 
+    createAddColumnModal(labelText, boardId) {
+        const modal = document.createElement('div');
+        modal.insertAdjacentHTML('afterbegin', dom.getModalInputForm(labelText));
+        modal.querySelector('#buttonCancel').remove();
+        htmlSelectors.getAccordionBody(boardId).nextSibling.firstChild.replaceWith(modal);
+        const inputField = document.getElementById('input');
+        inputField.focus();
+        inputField.select();
+        inputField.addEventListener('focusout', () => {
+            setTimeout(() => {
+                modal.replaceWith(dom.createAddColumnButton(boardId))
+            }, 100)
+        });
+        return modal;
+    },
+    createAddCardModal(labelText, boardId, statusId) {
+        const modalouter = document.createElement('div');
+        const modal = document.createElement('div');
+        modal.setAttribute('class', "add-card-modal");
+        modalouter.style.height = "40px" ;
+        modal.insertAdjacentHTML('afterbegin', dom.getModalInputForm(labelText));
+        modal.querySelector('#buttonCancel').remove();
+        modal.querySelector('label').remove();
+        modal.querySelector('.flex-center-middle').setAttribute('class', "flex-add-card");
+        const accBody = htmlSelectors.getAccordionBody(boardId);
+        const column = htmlSelectors.getColumn(accBody, statusId).querySelector('button.btn');
+        modalouter.appendChild(modal)
+        column.replaceWith(modalouter)
+
+        const swoosh = document.createElement('i');
+        swoosh.setAttribute('class', "fas fa-check");
+        const button = modal.querySelector("#buttonSubmit");
+        button.innerText = '';
+        button.appendChild(swoosh);
+
+        const inputField = document.getElementById('input');
+        inputField.focus();
+        inputField.select();
+        inputField.addEventListener('focusout', () => {
+            setTimeout(() => {
+                modalouter.replaceWith(column);
+            }, 100)
+        });
+        return modalouter;
+    },
     appendColumnToBoard(boardId, newColumn) {
         const columnDiv = dom.createStatusColumn(boardId, newColumn);
         const boardAccBody = htmlSelectors.getAccordionBody(boardId);
@@ -321,5 +367,27 @@ export let dom = {
         const boardAccBody = htmlSelectors.getAccordionBody(boardId);
         const cardsStatusColumnDiv = htmlSelectors.getColumn(boardAccBody, columnId);
         cardsStatusColumnDiv.appendChild(cardDiv);
+    },
+    createAddColumnButton(boardId) {
+        const addColumnButton = document.createElement('button');
+        addColumnButton.addEventListener('click', () => {
+            dom.showAddColumnModal(boardId);
+        });
+        addColumnButton.setAttribute('class', 'btn btn-light');
+        addColumnButton.innerText = "Add column";
+        return addColumnButton;
+    },
+
+    createAddCardButton(boardId, statusId) {
+        const buttonAddCard = document.createElement('button')
+
+        buttonAddCard.setAttribute('class', 'btn btn-primary btn-sm');
+        buttonAddCard.innerText = 'Add Card';
+        buttonAddCard.style.width = '100%';
+
+        buttonAddCard.addEventListener('click', () => {
+            dom.showAddCardModal(boardId, statusId);
+        })
+        return buttonAddCard;
     }
 };
