@@ -89,18 +89,20 @@ export let dom = {
 
         this.accordionItem = document.createElement('div');
         this.accordionHeader = document.createElement('h2');
-        this.accordionButton = document.createElement('button');
+        const accordionButton = document.createElement('button');
         this.accordionCollapseBody = document.createElement('div');
 
         this.accordionItem.setAttribute('class', `accordion-item board${board.id}`);
         dom.setAccordionHeaderAttributes();
-        dom.setAccordionButtonAttributes();
-        this.accordionButton.addEventListener('click', () =>
-            dom.processAccordionItemExpanding(board.id)
+        dom.setAccordionButtonAttributes(accordionButton);
+
+        accordionButton.addEventListener('click', () => {
+                dom.processAccordionItemExpanding(board.id, accordionButton)
+            }
         );
         dom.setAccordionCollapseBody();
 
-        this.accordionHeader.appendChild(this.accordionButton);
+        this.accordionHeader.appendChild(accordionButton);
         this.accordionItem.appendChild(this.accordionHeader);
         this.accordionItem.appendChild(this.accordionCollapseBody);
         return this.accordionItem;
@@ -154,15 +156,15 @@ export let dom = {
         this.accordionHeader.setAttribute('class', 'accordion-header');
         this.accordionHeader.setAttribute('id', this.headerId);
     },
-    setAccordionButtonAttributes() {
-        this.accordionButton.innerText = `${this.board.title}`;
-        this.accordionButton.setAttribute('class', 'accordion-button collapsed');
-        this.accordionButton.setAttribute('type', 'button');
-        this.accordionButton.setAttribute('data-bs-toggle', 'collapse');
-        this.accordionButton.setAttribute('data-bs-target', `#${this.collapseId}`);
-        this.accordionButton.setAttribute('aria-expanded', `false`);
-        this.accordionButton.setAttribute('aria-controls', this.collapseId);
-        this.accordionButton.setAttribute('click-cooldown', 'false');
+    setAccordionButtonAttributes(accordionButton) {
+        accordionButton.innerText = `${this.board.title}`;
+        accordionButton.setAttribute('class', 'accordion-button collapsed');
+        accordionButton.setAttribute('type', 'button');
+        accordionButton.setAttribute('data-bs-toggle', 'collapse');
+        accordionButton.setAttribute('data-bs-target', `#${this.collapseId}`);
+        accordionButton.setAttribute('aria-expanded', `false`);
+        accordionButton.setAttribute('aria-controls', this.collapseId);
+        accordionButton.setAttribute('click-cooldown', 'false');
     },
     setAccordionCollapseBody() {
         this.accordionCollapseBody.setAttribute('id', this.collapseId);
@@ -189,14 +191,13 @@ export let dom = {
         this.accordionCollapseBody.appendChild(accordionBody);
         this.accordionCollapseBody.appendChild(addColumnDiv);
     },
-    processAccordionItemExpanding(board_id) {
-        if (!this.accordionButton.disabled) {
-            this.accordionButton.disabled = true;
-            dom.loadBoardContent(board_id);
-            setTimeout(() => {
-                this.accordionButton.disabled = false;
-            }, 1000)
-        }
+    processAccordionItemExpanding(board_id, accordionButton) {
+        accordionButton.setAttribute('disabled', 'true');
+
+        dom.loadBoardContent(board_id);
+        setTimeout(() => {
+            accordionButton.removeAttribute('disabled');
+        }, 1000)
     },
     createAddBoardButton() {
         const pageHeader = document.getElementById('page-title');
