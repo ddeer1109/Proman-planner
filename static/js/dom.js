@@ -266,11 +266,9 @@ export let dom = {
             const dataObject = {'title': inputValue, 'board_id': boardId, 'status_id': columnId};
             dataHandler.createNewCard(dataObject, (card) => {
                 const button = dom.createAddCardButton(boardId, columnId);
-                console.log('butt', button)
                 modal.replaceWith(button);
                 dom.appendNewCardToColumn(boardId, columnId, card);
             })
-            modal.remove();
         });
     },
     getModalInputForm(labelText) {
@@ -350,8 +348,10 @@ export let dom = {
         inputField.focus();
         inputField.select();
         inputField.addEventListener('focusout', () => {
+            const newButton = dom.createAddCardButton(boardId, statusId);
+            console.log('modalouter', modalouter)
             setTimeout(() => {
-                modalouter.replaceWith(column);
+                modalouter.replaceWith(newButton);
             }, 100)
         });
         return modalouter;
