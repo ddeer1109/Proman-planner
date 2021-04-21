@@ -15,7 +15,7 @@ export let dataHandler = {
         })
         .then(response => response.json())  // parse the response as JSON
         .then(json_response => {
-            console.log("json response", json_response);
+            // console.log("json response", json_response);
             callback(json_response)
         });  // Call the `callback` with the returned object
     },
@@ -71,7 +71,7 @@ export let dataHandler = {
         this._api_get(`get-board-statuses/${boardId}`, (response) => {
             let tempObject = this._data['boards'].filter(board => board.id == boardId);
             tempObject[0].statuses = response;
-            console.log(response, "board statuses");
+            // console.log(response, "board statuses");
             callback(response);
         })
     },
@@ -81,7 +81,7 @@ export let dataHandler = {
         this._api_get(`get-cards/${boardId}`, (response) => {
             let tempObject = this._data['boards'].filter(board => board.id == boardId);
             tempObject[0].cards = response;
-            console.log(response, 'card by id')
+            // console.log(response, 'card by id')
             callback(response);
         })
 
@@ -95,7 +95,7 @@ export let dataHandler = {
             callback();
         });
     },
-    createNewCard: function (cardTitle, boardId, statusId, callback) {
+    createNewCard: function (cardData, callback) {
         // creates new card, saves it and calls the callback function with its data
     },
     // here comes more features

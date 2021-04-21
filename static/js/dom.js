@@ -34,7 +34,7 @@ export let dom = {
         // retrieves boards and makes showBoards called
         dataHandler.getBoards(function(boards) {
             dom.showBoards(boards);
-            console.log("data - > ", dataHandler._data)
+            // console.log("data - > ", dataHandler._data)
         });
     },
     showBoards: function (boards) {
@@ -111,7 +111,7 @@ export let dom = {
         accBody.innerHTML = "";
         return new Promise(resolve => {
             dataHandler.getBoardsStatuses(boardId, function (boardStatuses) {
-                console.log('board statuses 11111 -', boardStatuses)
+                // console.log('board statuses 11111 -', boardStatuses)
                 dom.createStatusesColumns(accBody, boardStatuses);
                 resolve();
             });
@@ -119,6 +119,8 @@ export let dom = {
     },
 
     createStatusesColumns(accBody, boardStatuses) {
+        const boardId = parseInt(accBody.getAttribute('data-board'))
+
         // add status-columns
         for (let status of boardStatuses) {
                 const colDiv = document.createElement('div');
@@ -129,6 +131,10 @@ export let dom = {
                 buttonAddCard.setAttribute('class', 'btn btn-primary btn-sm');
                 buttonAddCard.innerText = 'Add Card';
                 buttonAddCard.style.width = '100%';
+
+                buttonAddCard.addEventListener('click', () => {
+                    dom.showAddCardModal(boardId, status.id);
+                })
 
 
                 statusContent.appendChild(buttonAddCard)
@@ -200,6 +206,7 @@ export let dom = {
         addingButton.addEventListener('click', dom.showAddBoardModal)
         pageHeader.insertAdjacentElement('afterend', addingButton);
     },
+    // TODO - to refactor
     showAddBoardModal() {
         const modal = dom.createModalDiv('Board title: ');
         const form = document.getElementById('form');
@@ -210,6 +217,7 @@ export let dom = {
             modal.remove();
         });
     },
+    // TODO - to refactor
     showAddColumnModal(boardId) {
         const modal = dom.createModalDiv('Column name: ');
         const form = document.getElementById('form');
@@ -220,6 +228,18 @@ export let dom = {
                 modal.remove();
                 dom.loadBoardContent(boardId);
             });
+        });
+    },
+    showAddCardModal(boardId, columnId) {
+        const modal = dom.createModalDiv('Card name: ');
+        const form = document.getElementById('form');
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const inputValue = document.getElementById('input').value;
+            dataHandler.createNewCard({'title': inputValue, 'board_id': boardId, 'status_id': columnId}, () => {
+                modal.remove();
+                dom.loadBoardContent(boardId)
+            })
         });
     },
     getModalInputForm(labelText) {
@@ -247,9 +267,9 @@ export let dom = {
         document.body.appendChild(modal);
 
         const cancelButton = document.getElementById('buttonCancel');
-        console.log(cancelButton, "cancel button");
+        // console.log(cancelButton, "cancel button");
         cancelButton.addEventListener('click', () => {
-            console.log(modal, "modal");
+            // console.log(modal, "modal");
             modal.remove()
         });
         return modal;
