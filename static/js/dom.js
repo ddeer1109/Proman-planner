@@ -119,17 +119,23 @@ export let dom = {
     },
 
     createStatusesColumns(accBody, boardStatuses) {
-
+        // add status-columns
         for (let status of boardStatuses) {
                 const colDiv = document.createElement('div');
                 const statusTitle = document.createElement('h4');
                 const statusContent = document.createElement('div');
 
+                const buttonAddCard = document.createElement('button')
+                buttonAddCard.setAttribute('class', 'btn btn-primary btn-sm');
+                buttonAddCard.innerText = 'Add Card';
+                buttonAddCard.style.width = '100%';
+
+
+                statusContent.appendChild(buttonAddCard)
                 statusTitle.innerText = status.title;
                 statusContent.setAttribute('class', 'column-content');
 
                 colDiv.classList.add(`status-column`);
-                colDiv.classList.add(`flex-fill`);
                 colDiv.setAttribute('data-column', status.id);
 
                 colDiv.appendChild(statusTitle);
@@ -171,7 +177,8 @@ export let dom = {
         addColumnDiv.appendChild(addColumnButton);
 
         const accordionBody = document.createElement('div');
-        accordionBody.setAttribute('class', 'accordion-body container flex-center-middle');
+        // accordionBody.setAttribute('class', 'accordion-body container flex-center-middle');
+        accordionBody.setAttribute('class', 'accordion-body container');
         accordionBody.setAttribute('data-board', `${this.board.id}`);
         this.accordionCollapseBody.appendChild(accordionBody);
         this.accordionCollapseBody.appendChild(addColumnDiv);

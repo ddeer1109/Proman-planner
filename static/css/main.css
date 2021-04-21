@@ -1,7 +1,8 @@
 body {
-    height: 110vh;
+    /*height: 110vh;*/
     background-color: #222222;
     color:white;
+    overflow-y: scroll;
 }
 
 #boards {
@@ -55,14 +56,26 @@ accordion-collapse.collapse.show {
     animation-timing-function: ease-in;
 }
 
+.accordion-body {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    flex-grow: 0 ;
+    align-items: center;
+    /*overflow-x: scroll;*/
+
+    min-height: 30vh;
+    width: 100%;
+    background-color: black;
+}
+
 .column-content {
     animation-name: heightAnimation, modalopen;
     padding: 0.8rem;
     animation-duration: 2s, 1.5s;
-    min-width: 8rem;
-    min-height: 50vh;
+    min-width: 12rem;
+    min-height: 25vh;
     background-color: #f8f8f8;
-
 }
 
 div.status-column h4 {
@@ -77,12 +90,12 @@ div.status-column h4 {
     margin: 0.5em 0.5em;
 }
 
-.accordion-body {
-    min-height: 30vh;
-    width: 100%;
-    background-color: black;
-    overflow-x: paged-x;
-}
+/*.accordion-body {*/
+/*    min-height: 30vh;*/
+/*    width: 100%;*/
+/*    background-color: black;*/
+/*    overflow-x: paged-x;*/
+/*}*/
 
 
 #page-title {
@@ -107,7 +120,7 @@ div.status-column h4 {
 }
 
 .display-modal {
-    position: absolute;
+    position: fixed;
     width: 100%;
     height: 100%;
     z-index: 100;
@@ -144,6 +157,6 @@ div.status-column h4 {
       min-height: 5vh;
     }
     to {
-      min-height: 50vh;
+      min-height: 25vh;
     }
   }
