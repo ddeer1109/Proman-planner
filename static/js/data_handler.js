@@ -36,6 +36,11 @@ export let dataHandler = {
             )
         }).then(callback);
     },
+    _api_delete: function (url, callback) {
+        fetch(url, {
+            method: 'DELETE'
+        }).then(callback)
+    },
     init: function () {
         // this.getStatuses();
     },
@@ -105,6 +110,11 @@ export let dataHandler = {
     // here comes more features
     createNewColumn: function (columnData, callback) {
         this._api_post('/new-column', columnData, () => {
+            callback();
+        })
+    },
+    deleteCard: function (id, callback) {
+        this._api_delete(`/delete-card/${id}`, () => {
             callback();
         })
     }

@@ -15,6 +15,7 @@ body {
 
 
 .card {
+    position: relative;
     min-width: 8rem;
     padding: 0.5rem;
     margin-top: 4px;
@@ -22,6 +23,24 @@ body {
     animation-duration: 1s;
     background-color: black;
     color: #f8f8f8;
+    cursor: pointer;
+}
+
+
+.button-card-delete {
+    /*position: relative;*/
+    display: none;
+    position: absolute;
+    right: -20px;
+    top: -10px;
+    z-index: 10;
+}
+
+.card:hover {
+    background-color: #323030;
+}
+.card:hover .button-card-delete {
+    display: block;
 }
 
 h2 button {

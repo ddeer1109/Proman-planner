@@ -67,6 +67,17 @@ export let dom = {
                 cardNew.setAttribute('class', 'card');
                 cardNew.setAttribute('data-card', `${card.id}`);
                 cardNew.innerText = card.title;
+
+                const buttonDelete = document.createElement('button')
+                buttonDelete.setAttribute('class', 'btn btn-danger btn-sm button-card-delete')
+                buttonDelete.innerText = 'Delete'
+                buttonDelete.addEventListener('click', () => {
+                    dataHandler.deleteCard(card.id, () => {
+                        cardNew.remove()
+                    })
+                })
+                cardNew.appendChild(buttonDelete);
+
                 const column = htmlSelectors.getColumn(accBody, card.status_id);
                 column.appendChild(cardNew);
             };
@@ -231,6 +242,7 @@ export let dom = {
             });
         });
     },
+    // TODO - to refactor
     showAddCardModal(boardId, columnId) {
         const modal = dom.createModalDiv('Card name: ');
         const form = document.getElementById('form');

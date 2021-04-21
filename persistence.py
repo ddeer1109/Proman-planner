@@ -155,8 +155,6 @@ def add_column_to_boards_columns(cursor: RealDictCursor, column_data, status_id)
 
 @data_connection.connection_handler
 def add_new_card(cursor: RealDictCursor, card_data):
-
-    print(card_data)
     command = f"""
         INSERT INTO card(board_id,title,status_id,index)
         VALUES (%(board_id)s, %(title)s, %(status_id)s, 
@@ -164,3 +162,11 @@ def add_new_card(cursor: RealDictCursor, card_data):
     """
 
     cursor.execute(command, card_data)
+
+@data_connection.connection_handler
+def delete_card(cursor: RealDictCursor, card_id):
+    command = f"""
+        DELETE FROM card WHERE id=%(card_id)s
+    """
+
+    cursor.execute(command, {'card_id': card_id})

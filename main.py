@@ -76,6 +76,11 @@ def post_new_card():
     print(request.get_json(), "json")
     data_handler.add_new_card(request.get_json())
 
+@app.route("/delete-card/<int:card_id>", methods=["DELETE"])
+@json_response
+def delete_card(card_id: int):
+    data_handler.delete_card(card_id)
+
 def main():
     app.run(debug=True)
 

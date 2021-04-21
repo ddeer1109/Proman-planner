@@ -51,3 +51,6 @@ def add_new_column(column_data):
 
 def add_new_card(card_data):
     persistence.add_new_card(card_data)
+
+def delete_card(card_id):
+    persistence.delete_card(card_id)
