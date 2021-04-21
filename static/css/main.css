@@ -21,18 +21,27 @@ body {
     margin-top: 4px;
     animation-name: modalopen;
     animation-duration: 1s;
+    animation-delay: 0.5s;
+    animation-fill-mode: both;
     background-color: black;
     color: #f8f8f8;
     cursor: pointer;
 }
 
+i {
+    color: white;
+    font-size: 0.8rem;
+}
+
 
 .button-card-delete {
     /*position: relative;*/
+    /*padding: 0px 6px 3px 6px;*/
+
     display: none;
     position: absolute;
-    right: -20px;
-    top: -10px;
+    right: -10px;
+    top: -7px;
     z-index: 10;
 }
 
@@ -69,11 +78,12 @@ h2 button {
     background-color: #f8f8f8;
 }
 
-accordion-collapse.collapse.show {
-    animation-name: heightAnimation, modalopen;
-    animation-duration: 1s, 2s;
-    animation-timing-function: ease-in;
-}
+/*accordion-collapse.collapse.show {*/
+/*    animation-name: heightAnimation;*/
+/*    animation-duration: 1s;*/
+/*    animation-delay: 1s;*/
+/*    animation-timing-function: ease-in;*/
+/*}*/
 
 .accordion-body {
     display: flex;
@@ -91,9 +101,10 @@ accordion-collapse.collapse.show {
 .column-content {
     animation-name: heightAnimation, modalopen;
     padding: 0.8rem;
-    animation-duration: 2s, 1.5s;
+    animation-fill-mode: both;
+    animation-duration: 1s, 1.5s;
     min-width: 12rem;
-    min-height: 25vh;
+    /*min-height: 25vh;*/
     background-color: #f8f8f8;
 }
 
@@ -103,6 +114,8 @@ div.status-column h4 {
     margin: 0.5rem 0;
     animation-name: modalopen;
     animation-duration: 1s;
+    animation-delay: 0.25s;
+    animation-fill-mode: both;
 }
 
 .status-column {
@@ -164,16 +177,19 @@ div.status-column h4 {
 
 @keyframes modalopen {
     from {
+        /*display:block;*/
       opacity: 0;
     }
     to {
+        /*display:block;*/
       opacity: 1;
     }
   }
 
+
 @keyframes heightAnimation {
     from {
-      min-height: 5vh;
+      min-height: 1vh;
     }
     to {
       min-height: 25vh;

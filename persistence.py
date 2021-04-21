@@ -112,11 +112,11 @@ def add_new_board(cursor: RealDictCursor, board_data):
     command = f"""
     INSERT INTO board(title)
     VALUES (%(title)s)
-    RETURNING id
+    RETURNING *
     """
 
     cursor.execute(command, board_data)
-    return cursor.fetchone()['id']
+    return dict(cursor.fetchone())
 
 
 @data_connection.connection_handler
@@ -137,11 +137,11 @@ def add_new_column(cursor: RealDictCursor, column_data):
     command = f"""
     INSERT INTO status(title)
     VALUES (%(title)s)
-    RETURNING id
+    RETURNING *
     """
 
     cursor.execute(command, {'title': column_data['title']})
-    return cursor.fetchone()['id']
+    return cursor.fetchone()
 
 
 @data_connection.connection_handler
@@ -153,15 +153,19 @@ def add_column_to_boards_columns(cursor: RealDictCursor, column_data, status_id)
 
     cursor.execute(command, {'board_id': column_data['boardId'], 'status_id': status_id})
 
+
 @data_connection.connection_handler
 def add_new_card(cursor: RealDictCursor, card_data):
     command = f"""
         INSERT INTO card(board_id,title,status_id,index)
         VALUES (%(board_id)s, %(title)s, %(status_id)s, 
         ((select max(index) from card where board_id=%(board_id)s and status_id=%(status_id)s)) + 1)
+        RETURNING *
     """
 
     cursor.execute(command, card_data)
+    return cursor.fetchone()
+
 
 @data_connection.connection_handler
 def delete_card(cursor: RealDictCursor, card_id):

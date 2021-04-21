@@ -70,14 +70,13 @@ INSERT INTO status VALUES (2, 'in progress');
 INSERT INTO status VALUES (3, 'testing');
 INSERT INTO status VALUES (4, 'done');
 INSERT INTO status VALUES (5, 'extra');
-SELECT pg_catalog.setval('status_id_seq', 4, true);
+SELECT pg_catalog.setval('status_id_seq', 5, true);
 
 INSERT INTO card VALUES(1,1,'new card 1',5,1);
 INSERT INTO card VALUES(2,1,'new card 2',1,2);
 INSERT INTO card VALUES(3,1,'in progress card',2,3);
 INSERT INTO card VALUES(4,1,'planning',3,4);
 INSERT INTO card VALUES(5,1,'done card 1',4,6);
-INSERT INTO card VALUES(14,1,'done card 1',2,5);
 INSERT INTO card VALUES(6,1,'done card 1',4,7);
 INSERT INTO card VALUES(7,2,'new card 1 2',1,9);
 INSERT INTO card VALUES(8,2,'new card 2 2',1,8);
@@ -86,7 +85,7 @@ INSERT INTO card VALUES(10,2,'planning 2',3,12);
 INSERT INTO card VALUES(11,2,'done card 1 2',4,11);
 INSERT INTO card VALUES(12,2,'done card 1 2',4,14);
 INSERT INTO card VALUES(13,2,'some new card 1 1',4,13);
-SELECT pg_catalog.setval('card_id_seq', 14, true);
+SELECT pg_catalog.setval('card_id_seq', 13, true);
 
 INSERT INTO board_status VALUES (1, 1, 1);
 INSERT INTO board_status VALUES (2, 1, 2);

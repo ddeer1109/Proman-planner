@@ -15,16 +15,20 @@ export let htmlSelectors = {
     getAccordionBody(boardId) {
         return document.querySelector(`div[data-board="${boardId}"]`);
     },
+    getAccordionContainer() {
+      return document.getElementById('accordionContainer');
+    },
     getColumn(accBody, statusId) {
         // console.log(`#${boardId}${statusId}, id`);
         // return document.getElementById(`${boardId}${statusId}`);
         return accBody.querySelector(`div.status-column[data-column="${statusId}"] .column-content`)
-    }
+    },
 
 };
 
 
 export let dom = {
+    accordionContainer: null,
     init: function () {
         // This function should run once, when the page is loaded.
         dataHandler.init();
@@ -63,35 +67,50 @@ export let dom = {
         if (cards.length != 0) {
             const accBody = htmlSelectors.getAccordionBody(cards[0].board_id);
             for (let card of cards) {
-                const cardNew = document.createElement('div');
-                cardNew.setAttribute('class', 'card');
-                cardNew.setAttribute('data-card', `${card.id}`);
-                cardNew.innerText = card.title;
-
-                const buttonDelete = document.createElement('button')
-                buttonDelete.setAttribute('class', 'btn btn-danger btn-sm button-card-delete')
-                buttonDelete.innerText = 'Delete'
-                buttonDelete.addEventListener('click', () => {
-                    dataHandler.deleteCard(card.id, () => {
-                        cardNew.remove()
-                    })
-                })
-                cardNew.appendChild(buttonDelete);
-
-                const column = htmlSelectors.getColumn(accBody, card.status_id);
-                column.appendChild(cardNew);
+                const cardNew = dom.createCard(card);
+                dom.appendCardToColumn(accBody, cardNew, card.status_id);
             };
         }
+    },
+    createCard(card) {
+        const cardDiv = document.createElement('div');
+        cardDiv.setAttribute('class', 'card');
+        cardDiv.setAttribute('data-card', `${card.id}`);
+        cardDiv.innerText = card.title;
+
+        const buttonDelete = document.createElement('button')
+        buttonDelete.setAttribute('class', 'btn btn-danger btn-sm button-card-delete')
+        const trashIcon = document.createElement('i');
+        trashIcon.setAttribute('class', 'fas fa-trash')
+        buttonDelete.appendChild(trashIcon);
+        buttonDelete.addEventListener('click', () => {
+            dom.deleteCard(cardDiv, card.id);
+        });
+        cardDiv.appendChild(buttonDelete);
+        return cardDiv;
+    },
+    appendCardToColumn(accordionBody, cardDiv, cardStatusId) {
+        const column = htmlSelectors.getColumn(accordionBody, cardStatusId);
+        column.appendChild(cardDiv);
+    },
+    deleteCard(card, card_id) {
+        dataHandler.deleteCard(card_id, () => {
+            card.remove()
+        })
     },
     createAccordion: function (boards) {
         const accordionContainer = document.createElement('div');
         accordionContainer.setAttribute('class', 'accordion');
         accordionContainer.setAttribute('id', 'accordionContainer');
+        dom.accordionContainer = accordionContainer;
         for (let board of boards) {
-            const accItem = dom.createAccordionItem(board);
-            accordionContainer.appendChild(accItem);
+            dom.addNewBoardToContainer(board);
         }
         return accordionContainer;
+    },
+    addNewBoardToContainer(newBoard) {
+        const accItem = dom.createAccordionItem(newBoard);
+        dom.accordionContainer.appendChild(accItem);
     },
     createAccordionItem: function (board) {
         this.headerId = `heading${board.id}`;
@@ -130,39 +149,6 @@ export let dom = {
             });
         });
     },
-
-    createStatusesColumns(accBody, boardStatuses) {
-        const boardId = parseInt(accBody.getAttribute('data-board'))
-
-        // add status-columns
-        for (let status of boardStatuses) {
-                const colDiv = document.createElement('div');
-                const statusTitle = document.createElement('h4');
-                const statusContent = document.createElement('div');
-
-                const buttonAddCard = document.createElement('button')
-                buttonAddCard.setAttribute('class', 'btn btn-primary btn-sm');
-                buttonAddCard.innerText = 'Add Card';
-                buttonAddCard.style.width = '100%';
-
-                buttonAddCard.addEventListener('click', () => {
-                    dom.showAddCardModal(boardId, status.id);
-                })
-
-
-                statusContent.appendChild(buttonAddCard)
-                statusTitle.innerText = status.title;
-                statusContent.setAttribute('class', 'column-content');
-
-                colDiv.classList.add(`status-column`);
-                colDiv.setAttribute('data-column', status.id);
-
-                colDiv.appendChild(statusTitle);
-                colDiv.appendChild(statusContent);
-
-                accBody.appendChild(colDiv);
-        }
-    },
     setAccordionHeaderAttributes() {
         this.accordionHeader.setAttribute('class', 'accordion-header');
         this.accordionHeader.setAttribute('id', this.headerId);
@@ -185,8 +171,8 @@ export let dom = {
 
         const addColumnDiv = document.createElement('div');
         addColumnDiv.setAttribute('class', "add-col-btn")
-        const addColumnButton = document.createElement('button');
 
+        const addColumnButton = document.createElement('button');
         const boardId = this.board.id;
         addColumnButton.addEventListener('click', () => {
             dom.showAddColumnModal(boardId);
@@ -210,6 +196,39 @@ export let dom = {
             accordionButton.removeAttribute('disabled');
         }, 1000)
     },
+    createStatusesColumns(accBody, boardStatuses) {
+        const boardId = parseInt(accBody.getAttribute('data-board'))
+
+        // add status-columns
+        for (let status of boardStatuses) {
+                const colDiv = dom.createStatusColumn(boardId, status)
+                accBody.appendChild(colDiv);
+        }
+    },
+    createStatusColumn(boardId, status) {
+        const colDiv = document.createElement('div');
+        const statusTitle = document.createElement('h4');
+        const statusContent = document.createElement('div');
+        const buttonAddCard = document.createElement('button')
+
+        buttonAddCard.setAttribute('class', 'btn btn-primary btn-sm');
+        buttonAddCard.innerText = 'Add Card';
+        buttonAddCard.style.width = '100%';
+
+        buttonAddCard.addEventListener('click', () => {
+            dom.showAddCardModal(boardId, status.id);
+        })
+        statusContent.appendChild(buttonAddCard)
+        statusTitle.innerText = status.title;
+        statusContent.setAttribute('class', 'column-content');
+
+        colDiv.classList.add(`status-column`);
+        colDiv.setAttribute('data-column', status.id);
+        colDiv.appendChild(statusTitle);
+        colDiv.appendChild(statusContent);
+
+        return colDiv;
+    },
     createAddBoardButton() {
         const pageHeader = document.getElementById('page-title');
         const addingButton = document.createElement('button');
@@ -225,7 +244,9 @@ export let dom = {
         form.addEventListener('submit', (event) => {
             event.preventDefault();
             const inputValue = document.getElementById('input').value;
-            dataHandler.createNewBoard({'title': inputValue}, dom.loadBoards);
+            dataHandler.createNewBoard({'title': inputValue}, (newBoard) => {
+                dom.addNewBoardToContainer(newBoard);
+            });
             modal.remove();
         });
     },
@@ -236,10 +257,10 @@ export let dom = {
         form.addEventListener('submit', (event) => {
             event.preventDefault();
             const inputValue = document.getElementById('input').value;
-            dataHandler.createNewColumn({'title': inputValue, 'boardId': boardId}, () => {
-                modal.remove();
-                dom.loadBoardContent(boardId);
+            dataHandler.createNewColumn({'title': inputValue, 'boardId': boardId}, (newColumn) => {
+                dom.appendColumnToBoard(boardId, newColumn);
             });
+            modal.remove();
         });
     },
     // TODO - to refactor
@@ -249,10 +270,11 @@ export let dom = {
         form.addEventListener('submit', (event) => {
             event.preventDefault();
             const inputValue = document.getElementById('input').value;
-            dataHandler.createNewCard({'title': inputValue, 'board_id': boardId, 'status_id': columnId}, () => {
-                modal.remove();
-                dom.loadBoardContent(boardId)
+            const dataObject = {'title': inputValue, 'board_id': boardId, 'status_id': columnId};
+            dataHandler.createNewCard(dataObject, (card) => {
+                dom.appendNewCardToColumn(boardId, columnId, card);
             })
+            modal.remove();
         });
     },
     getModalInputForm(labelText) {
@@ -288,4 +310,16 @@ export let dom = {
         return modal;
     },
 
+    appendColumnToBoard(boardId, newColumn) {
+        const columnDiv = dom.createStatusColumn(boardId, newColumn);
+        const boardAccBody = htmlSelectors.getAccordionBody(boardId);
+        boardAccBody.appendChild(columnDiv);
+        console.log("add column", columnDiv);
+    },
+    appendNewCardToColumn(boardId, columnId, card) {
+        const cardDiv = dom.createCard(card);
+        const boardAccBody = htmlSelectors.getAccordionBody(boardId);
+        const cardsStatusColumnDiv = htmlSelectors.getColumn(boardAccBody, columnId);
+        cardsStatusColumnDiv.appendChild(cardDiv);
+    }
 };

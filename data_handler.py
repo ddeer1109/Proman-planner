@@ -41,16 +41,18 @@ def get_board_statuses(board_id):
 
 
 def add_new_board(board_data):
-    board_id = persistence.add_new_board(board_data)
-    persistence.add_default_statuses(board_id)
+    board = persistence.add_new_board(board_data)
+    persistence.add_default_statuses(board['id'])
+    return board
 
 
 def add_new_column(column_data):
-    status_id = persistence.add_new_column(column_data)
-    persistence.add_column_to_boards_columns(column_data, status_id)
+    new_column = persistence.add_new_column(column_data)
+    persistence.add_column_to_boards_columns(column_data, new_column['id'])
+    return new_column
 
 def add_new_card(card_data):
-    persistence.add_new_card(card_data)
+    return persistence.add_new_card(card_data)
 
 def delete_card(card_id):
     persistence.delete_card(card_id)

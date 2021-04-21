@@ -21,20 +21,19 @@ export let dataHandler = {
     },
     _api_post: function (url, data, callback) {
         fetch(url, {
-
-            // Declare what type of data we're sending
             headers: {
               'Content-Type': 'application/json'
             },
-
-            // Specify the method
             method: 'POST',
 
-            // A JSON payload
-            body: JSON.stringify(
-                data
-            )
-        }).then(callback);
+            body: JSON.stringify(data)
+            }
+        )
+            .then(response => response.json())
+            .then(json_response => {
+                // console.log("json response", json_response)
+                callback(json_response)
+            });
     },
     _api_delete: function (url, callback) {
         fetch(url, {
@@ -75,6 +74,7 @@ export let dataHandler = {
     getBoardsStatuses: function (boardId, callback) {
         this._api_get(`get-board-statuses/${boardId}`, (response) => {
             let tempObject = this._data['boards'].filter(board => board.id == boardId);
+            // console.log(tempObject, "asd");
             tempObject[0].statuses = response;
             // console.log(response, "board statuses");
             callback(response);
@@ -96,26 +96,33 @@ export let dataHandler = {
     },
     createNewBoard: function (boardData, callback) {
         // creates new board, saves it and calls the callback function with its data
-        this._api_post('/new-board', boardData, () => {
-            callback();
+        this._api_post('/new-board', boardData, (response) => {
+            this._data['boards'].push(response);
+            callback(response);
         });
     },
     createNewCard: function (cardData, callback) {
         // creates new card, saves it and calls the callback function with its data
 
-        this._api_post('/new-card', cardData, () => {
-            callback();
+        this._api_post('/new-card', cardData, (response) => {
+            const boardCards = this._data['boards']
+                .filter(board => board.id == cardData.board_id)[0].cards
+            boardCards.push(response);
+            callback(response);
         })
     },
     // here comes more features
     createNewColumn: function (columnData, callback) {
-        this._api_post('/new-column', columnData, () => {
-            callback();
+        this._api_post('/new-column', columnData, (response) => {
+            const boardStatuses = this._data['boards']
+                .filter(board => board.id == columnData.boardId)[0].statuses
+            boardStatuses.push(response);
+            callback(response);
         })
     },
     deleteCard: function (id, callback) {
-        this._api_delete(`/delete-card/${id}`, () => {
-            callback();
+        this._api_delete(`/delete-card/${id}`, (newCard) => {
+            callback(newCard);
         })
     }
 };
