@@ -20,7 +20,7 @@ export let htmlComponents = {
             <form id="form" class="flex-center-middle g-1" method="post">
                 <div class="flex-center-middle">
                     <div class="">
-                        <input id="input" type="text" class="form-control" id="inputTitle" placeholder="${labelText}">
+                        <input id="input" type="text" class="form-control" id="inputTitle" placeholder="${labelText}" required>
                     </div>  
                     <div class="">
                         <button id="buttonSubmit" type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
