@@ -121,8 +121,13 @@ export let dataHandler = {
         })
     },
     deleteCard: function (id, callback) {
-        this._api_delete(`/delete-card/${id}`, (newCard) => {
-            callback(newCard);
+        this._api_delete(`/delete-card/${id}`, () => {
+            callback();
+        })
+    },
+    deleteColumn: function (boardId, statusId, callback) {
+        this._api_delete(`/delete-column/${boardId}/${statusId}`, () => {
+            callback();
         })
     }
 };

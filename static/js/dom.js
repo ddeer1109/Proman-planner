@@ -228,25 +228,50 @@ export let dom = {
         // add status-columns
         for (let status of boardStatuses) {
                 const colDiv = dom.createStatusColumn(boardId, status)
+
                 accBody.appendChild(colDiv);
         }
     },
     createStatusColumn(boardId, status) {
         const colDiv = document.createElement('div');
+
+        const headerContainer = document.createElement('div')
+        headerContainer.setAttribute('class','column-header-container');
+
         const statusTitle = document.createElement('h4');
+        const btnDeleteColumn = this.createColumnButtonDelete(boardId, status, colDiv);
+
         const statusContent = document.createElement('div');
         const buttonAddCard = dom.createAddCardButton(boardId, status.id)
 
         statusContent.appendChild(buttonAddCard)
+
         statusTitle.innerText = status.title;
         statusContent.setAttribute('class', 'column-content');
 
+        headerContainer.appendChild(statusTitle);
+        headerContainer.appendChild(btnDeleteColumn);
+
         colDiv.classList.add(`status-column`);
         colDiv.setAttribute('data-column', status.id);
-        colDiv.appendChild(statusTitle);
+        colDiv.appendChild(headerContainer);
         colDiv.appendChild(statusContent);
 
         return colDiv;
+    },
+    createColumnButtonDelete(boardId, status, column) {
+        const btnDeleteColumn = document.createElement('button');
+        btnDeleteColumn.setAttribute('class', 'btn btn-danger btn-sm')
+        btnDeleteColumn.innerHTML = '<i class="fas fa-trash"></i>'
+        btnDeleteColumn.addEventListener('click', () => {
+            if(confirm('Are you sure to delete column?')) {
+                dataHandler.deleteColumn(boardId, status.id, () => {
+                    column.remove()
+                })
+            }
+        })
+
+        return btnDeleteColumn;
     },
     showAddColumnModal(boardId) {
         const modal = dom.createAddColumnModal('Column name', boardId);
