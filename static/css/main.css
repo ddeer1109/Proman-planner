@@ -52,6 +52,14 @@ i {
     display: block;
 }
 
+.column-header-container.card {
+    border-radius: 0px;
+}
+
+.column-header-container.card:hover {
+    background-color: transparent;
+}
+
 h2 button {
     background-color: black;
     color: #f8f8f8;
@@ -110,6 +118,10 @@ h2 button {
 }
 
 div.status-column h4 {
+    position: absolute;
+    margin: 0;
+    top: 2px;
+
     background-color: #111111;
     text-align: center;
     font-weight: lighter;

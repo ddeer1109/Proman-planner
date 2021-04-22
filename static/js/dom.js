@@ -236,7 +236,7 @@ export let dom = {
         const colDiv = document.createElement('div');
 
         const headerContainer = document.createElement('div')
-        headerContainer.setAttribute('class','column-header-container');
+        headerContainer.setAttribute('class','column-header-container card');
 
         const statusTitle = document.createElement('h4');
         const btnDeleteColumn = this.createColumnButtonDelete(boardId, status, colDiv);
@@ -261,7 +261,7 @@ export let dom = {
     },
     createColumnButtonDelete(boardId, status, column) {
         const btnDeleteColumn = document.createElement('button');
-        btnDeleteColumn.setAttribute('class', 'btn btn-danger btn-sm')
+        btnDeleteColumn.setAttribute('class', 'btn btn-danger btn-sm button-card-delete')
         btnDeleteColumn.innerHTML = '<i class="fas fa-trash"></i>'
         btnDeleteColumn.addEventListener('click', () => {
             if(confirm('Are you sure to delete column?')) {
