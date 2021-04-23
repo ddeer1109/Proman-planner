@@ -20,8 +20,8 @@ body {
     /*padding: 0.5rem;*/
     margin-top: 4px;
     animation-name: modalopen, cardHeightAnimation, blackToWhiteFont;
-    animation-duration: 0.5s, 0.5s, 0.3s;
-    animation-delay: 0s, 0.1s, 0.2s;
+    animation-duration: 0.3s, 0.3s, 0.3s;
+    animation-delay: 0s, 0.1s, 0.1s;
     animation-fill-mode: both;
     background-color: black;
     color: #f8f8f8;
@@ -250,6 +250,13 @@ form {
     align-items: center;
     border: 1px solid #444444;
     padding: 0.5rem;
+}
+
+.remove-board-div {
+    background-color: black;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
 }
 
 @keyframes modalopen {

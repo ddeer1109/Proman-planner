@@ -192,4 +192,30 @@ def delete_column(cursor: RealDictCursor, board_id, status_id):
     """
 
     cursor.execute(command, {'board_id': board_id, 'status_id': status_id})
+@data_connection.connection_handler
+def delete_all_board_cards(cursor: RealDictCursor, board_id):
+    command = f"""
+        DELETE FROM card
+        WHERE board_id=%(board_id)s
+    """
+
+    cursor.execute(command, {'board_id': board_id})
+
+@data_connection.connection_handler
+def delete_all_board_columns(cursor: RealDictCursor, board_id):
+    command = f"""
+        DELETE FROM board_status
+        WHERE board_id=%(board_id)s
+        """
+
+    cursor.execute(command, {'board_id': board_id})
+
+@data_connection.connection_handler
+def delete_board(cursor: RealDictCursor, board_id):
+    command = f"""
+            DELETE FROM board
+            WHERE id=%(board_id)s
+            """
+
+    cursor.execute(command, {'board_id': board_id})
 

@@ -129,5 +129,10 @@ export let dataHandler = {
         this._api_delete(`/delete-column/${boardId}/${statusId}`, () => {
             callback();
         })
+    },
+    deleteBoard(board_id, callback) {
+        this._api_delete(`/delete-board/${board_id}`, () => {
+            callback();
+        })
     }
 };

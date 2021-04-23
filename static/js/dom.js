@@ -136,6 +136,9 @@ export let dom = {
     },
     addNewBoardToContainer(newBoard) {
         const accItem = dom.createAccordionItem(newBoard);
+        const removeBoardButton = this.removeBoardButton(accItem, accItem.getAttribute('id'))
+        // accItem.lastChild.appendChild(removeBoardButton);
+        accItem.lastChild.insertAdjacentElement('afterbegin', removeBoardButton);
         dom.accordionContainer.appendChild(accItem);
     },
     createAccordionItem: function (board) {
@@ -148,7 +151,8 @@ export let dom = {
         const accordionButton = document.createElement('button');
         this.accordionCollapseBody = document.createElement('div');
 
-        this.accordionItem.setAttribute('class', `accordion-item board${board.id}`);
+        this.accordionItem.setAttribute('class', `accordion-item`);
+        this.accordionItem.setAttribute('id', `${board.id}`);
         dom.setAccordionHeaderAttributes();
         dom.setAccordionButtonAttributes(accordionButton);
 
@@ -162,6 +166,26 @@ export let dom = {
         this.accordionItem.appendChild(this.accordionHeader);
         this.accordionItem.appendChild(this.accordionCollapseBody);
         return this.accordionItem;
+    },
+
+    removeBoardButton(accordionItem, board_id) {
+      const buttonRemoveBoard = document.createElement('button');
+      buttonRemoveBoard.setAttribute('class', 'btn btn-danger m-1');
+      buttonRemoveBoard.innerText = 'Remove Board';
+      buttonRemoveBoard.addEventListener('click', () => {
+          if(window.confirm("Are you sure to remove this board?")) {
+              dataHandler.deleteBoard(board_id, () => {
+                  accordionItem.remove()
+            })
+          }
+      })
+
+        const removeBoardDiv = document.createElement('div')
+        removeBoardDiv.setAttribute('class', 'remove-board-div');
+
+        removeBoardDiv.appendChild(buttonRemoveBoard);
+
+      return removeBoardDiv
     },
     processAccordionItemExpanding(board_id, accordionButton) {
         accordionButton.setAttribute('disabled', 'true');
@@ -184,12 +208,18 @@ export let dom = {
         accordionButton.setAttribute('aria-expanded', `false`);
         accordionButton.setAttribute('aria-controls', this.collapseId);
         accordionButton.setAttribute('click-cooldown', 'false');
-    },
+        },
     setAccordionCollapseBody() {
         this.accordionCollapseBody.setAttribute('id', this.collapseId);
         this.accordionCollapseBody.setAttribute('class', "accordion-collapse collapse");
         this.accordionCollapseBody.setAttribute('aria-labelledby', this.headerId);
         this.accordionCollapseBody.setAttribute('data-bs-parent', `#accordionContainer`);
+
+        // TODO - remove this 4 elements
+        // const removeBoardDiv = document.createElement('div')
+        // removeBoardDiv.setAttribute('class', 'remove-board-div')
+        // const removeBoardButton = this.removeBoardButton();
+        // removeBoardDiv.appendChild(removeBoardButton);
 
         const addColumnDiv = document.createElement('div');
         addColumnDiv.setAttribute('class', "add-col-btn")
@@ -201,6 +231,7 @@ export let dom = {
         accordionBody.setAttribute('class', 'accordion-body container');
         accordionBody.setAttribute('data-board', `${this.board.id}`);
 
+        // this.accordionCollapseBody.appendChild(removeBoardDiv);
         this.accordionCollapseBody.appendChild(accordionBody);
         this.accordionCollapseBody.appendChild(addColumnDiv);
     },

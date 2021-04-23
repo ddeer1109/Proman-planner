@@ -60,3 +60,8 @@ def delete_card(card_id):
 def delete_column(board_id, status_id):
     persistence.delete_columns_cards(board_id, status_id)
     persistence.delete_column(board_id, status_id)
+
+def delete_board(board_id):
+    persistence.delete_all_board_cards(board_id)
+    persistence.delete_all_board_columns(board_id)
+    persistence.delete_board(board_id)
