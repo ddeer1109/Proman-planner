@@ -1,3 +1,11 @@
+// TODO
+// - connect backend with update input card areas
+// - implement rest of updates.
+// =====================================================
+// =====================================================
+// =====================================================
+
+
 // It uses data_handler.js to visualize elements
 import { dataHandler } from "./data_handler.js";
 
@@ -20,7 +28,7 @@ export let htmlComponents = {
             <form id="form" class="flex-center-middle g-1" method="post">
                 <div class="flex-center-middle">
                     <div class="">
-                        <input id="input" type="text" class="form-control" id="inputTitle" placeholder="${labelText}" required>
+                        <input id="input" type="text" class="form-control" placeholder="${labelText}" required>
                     </div>  
                     <div class="">
                         <button id="buttonSubmit" type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
@@ -375,9 +383,43 @@ export let dom = {
         buttonDelete.addEventListener('click', () => {
             dom.deleteCard(cardDiv, card.id);
         });
+        const updateSection = this.createUpdateSection(card.title, cardDiv);
+
+        cardDiv.addEventListener('click', function() {
+            this.replaceWith(updateSection);
+            updateSection.querySelector("#input").focus();
+        })
+
         cardDiv.appendChild(buttonDelete);
 
         return cardDiv;
+    },
+    createUpdateSection(cardTitle, cardDiv) {
+        // const updateForm = htmlComponents.getModalInputForm("XYZ");
+        const updateForm = document.createElement('form');
+        updateForm.setAttribute('class', 'flex-center-middle g-1 my-card-form')
+        updateForm.setAttribute('method', 'post')
+
+        const updateContainer = document.createElement('div');
+        updateContainer.setAttribute('class', 'flex-center-middle');
+
+        const updateInput = document.createElement('input');
+        updateInput.setAttribute('value', cardTitle);
+        updateInput.setAttribute('class', 'form-control update-card');
+        updateInput.setAttribute('id', 'input');
+        updateInput.addEventListener("focusout", () => {
+            updateForm.replaceWith(cardDiv);
+        })
+
+        const updateButton = document.createElement('button');
+        updateButton.setAttribute('class', 'btn btn-success update-card');
+        updateButton.insertAdjacentHTML('afterbegin', '<i class="fas fa-check"></i>');
+
+        updateContainer.appendChild(updateInput);
+        updateContainer.appendChild(updateButton);
+        updateForm.appendChild(updateContainer);
+
+        return updateForm;
     },
     appendCardToColumn(accordionBody, cardDiv, cardStatusId) {
         const column = htmlSelectors.getColumn(accordionBody, cardStatusId);
