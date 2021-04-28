@@ -402,12 +402,12 @@ export let dom = {
 
         updateForm.addEventListener('submit', (evt) => {
             evt.preventDefault()
-            console.log("Card submit")
             const id = cardDiv.getAttribute('data-card')
             const title = updateInput.value;
             dataHandler.updateCard({'card_id': id, 'card_title': title}, () => {
-                cardDiv.innerText = title;
+                cardDiv = dom.createCard({id: id, title: title })
                 // updateForm.replaceWith(cardDiv);
+
                 updateInput.blur()
             })
         })
