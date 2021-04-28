@@ -94,6 +94,10 @@ def delete_column(board_id: int, status_id: int):
 def delete_board(board_id: int):
     data_handler.delete_board(board_id)
 
+@app.route("/update-card", methods=["POST"])
+@json_response
+def update_card():
+    data_handler.update_card(request.get_json())
 
 
 def main():

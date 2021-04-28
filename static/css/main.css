@@ -319,14 +319,14 @@ form {
     from {
         /*color: black;*/
       min-height: 0;
-        opacity:0;
+        /*opacity:0;*/
         /*padding-bottom: 0;*/
     }
     to {
         /*color: white;*/
         /*padding-bottom: 20%;*/
         min-height: calc(2.5em);
-        opacity:1;
+        /*opacity:1;*/
         /*min-height: auto;*/
     }
   }

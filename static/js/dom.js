@@ -385,7 +385,7 @@ export let dom = {
         });
         const updateSection = this.createUpdateSection(card.title, cardDiv);
 
-        cardDiv.addEventListener('click', function() {
+        cardDiv.addEventListener('dblclick', function() {
             this.replaceWith(updateSection);
             updateSection.querySelector("#input").focus();
         })
@@ -400,6 +400,18 @@ export let dom = {
         updateForm.setAttribute('class', 'flex-center-middle g-1 my-card-form')
         updateForm.setAttribute('method', 'post')
 
+        updateForm.addEventListener('submit', (evt) => {
+            evt.preventDefault()
+            console.log("Card submit")
+            const id = cardDiv.getAttribute('data-card')
+            const title = updateInput.value;
+            dataHandler.updateCard({'card_id': id, 'card_title': title}, () => {
+                cardDiv.innerText = title;
+                // updateForm.replaceWith(cardDiv);
+                updateInput.blur()
+            })
+        })
+
         const updateContainer = document.createElement('div');
         updateContainer.setAttribute('class', 'flex-center-middle');
 
@@ -408,7 +420,9 @@ export let dom = {
         updateInput.setAttribute('class', 'form-control update-card');
         updateInput.setAttribute('id', 'input');
         updateInput.addEventListener("focusout", () => {
-            updateForm.replaceWith(cardDiv);
+            setTimeout(() => {
+                updateForm.replaceWith(cardDiv);
+            }, 150)
         })
 
         const updateButton = document.createElement('button');

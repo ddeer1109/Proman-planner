@@ -134,5 +134,11 @@ export let dataHandler = {
         this._api_delete(`/delete-board/${board_id}`, () => {
             callback();
         })
+    },
+    updateCard(card_data, callback) {
+        this._api_post(`/update-card`, card_data, () => {
+            callback();
+        })
     }
+
 };

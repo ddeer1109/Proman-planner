@@ -65,3 +65,6 @@ def delete_board(board_id):
     persistence.delete_all_board_cards(board_id)
     persistence.delete_all_board_columns(board_id)
     persistence.delete_board(board_id)
+
+def update_card(card_data):
+    persistence.update_card(card_data)

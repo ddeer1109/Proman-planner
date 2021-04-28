@@ -219,3 +219,12 @@ def delete_board(cursor: RealDictCursor, board_id):
 
     cursor.execute(command, {'board_id': board_id})
 
+@data_connection.connection_handler
+def update_card(cursor: RealDictCursor, card_data):
+    command = f"""
+        UPDATE card SET title= %(title)s
+        WHERE id=%(id)s
+    """
+
+    cursor.execute(command, {'id': card_data['card_id'], 'title': card_data['card_title']})
+
