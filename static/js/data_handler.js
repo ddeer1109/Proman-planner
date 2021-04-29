@@ -13,21 +13,21 @@ export let dataHandler = {
             method: 'GET',
             credentials: 'same-origin'
         })
-        .then(response => response.json())  // parse the response as JSON
-        .then(json_response => {
-            // console.log("json response", json_response);
-            callback(json_response)
-        });  // Call the `callback` with the returned object
+            .then(response => response.json())  // parse the response as JSON
+            .then(json_response => {
+                // console.log("json response", json_response);
+                callback(json_response)
+            });  // Call the `callback` with the returned object
     },
     _api_post: function (url, data, callback) {
         fetch(url, {
             headers: {
-              'Content-Type': 'application/json'
+                'Content-Type': 'application/json'
             },
             method: 'POST',
 
             body: JSON.stringify(data)
-            }
+        }
         )
             .then(response => response.json())
             .then(json_response => {
@@ -38,12 +38,12 @@ export let dataHandler = {
     _api_put: function (url, data, callback) {
         fetch(url, {
             headers: {
-              'Content-Type': 'application/json'
+                'Content-Type': 'application/json'
             },
             method: 'PUT',
 
             body: JSON.stringify(data)
-            }
+        }
         )
             .then(response => response.json())
             .then(json_response => {
@@ -160,7 +160,12 @@ export let dataHandler = {
         this._api_put(`/update-column`, column_data, () => {
             callback();
         })
-    }
+    },
+    updateBoard(boardData, callback) {
+        this._api_put(`/update-board`, boardData, () => {
+            callback();
+        })
+    },
 
 
 };

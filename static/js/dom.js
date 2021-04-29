@@ -60,12 +60,12 @@ export let dom = {
 
 
     // ===============
-// ================ BOARDS
+    // ================ BOARDS
 
 
     loadBoards: function () {
         // retrieves boards and makes showBoards called
-        dataHandler.getBoards(function(boards) {
+        dataHandler.getBoards(function (boards) {
             dom.showBoards(boards);
             // console.log("data - > ", dataHandler._data)
         });
@@ -77,7 +77,7 @@ export let dom = {
         const accordion = dom.createAccordion(boards);
         // console.log('container', pageContainer.innerHTML);
 
-            // pageContainer.replaceChild(accordion, pageContainer.firstChild);
+        // pageContainer.replaceChild(accordion, pageContainer.firstChild);
         setTimeout(() => {
             pageContainer.innerHTML = "";
             pageContainer.appendChild(accordion);
@@ -100,7 +100,7 @@ export let dom = {
 
         form.addEventListener('submit', (event) => {
             event.preventDefault();
-            dataHandler.createNewBoard({'title': inputField.value}, (newBoard) => {
+            dataHandler.createNewBoard({ 'title': inputField.value }, (newBoard) => {
                 dom.addNewBoardToContainer(newBoard);
             });
             modal.remove();
@@ -129,7 +129,7 @@ export let dom = {
 
 
     // ===============
-// ================ single_BOARD
+    // ================ single_BOARD
 
 
 
@@ -138,7 +138,7 @@ export let dom = {
         dataHandler.getCardsByBoardId(boardId, function (cards) {
             dom.initBoardColumnsRenderPromise(boardId)
                 .then(() => {
-                        setTimeout(() => dom.showCards(cards), 800)
+                    setTimeout(() => dom.showCards(cards), 800)
                 })
         });
     },
@@ -165,8 +165,8 @@ export let dom = {
         dom.setAccordionButtonAttributes(accordionButton);
 
         accordionButton.addEventListener('click', () => {
-                dom.processAccordionItemExpanding(board.id, accordionButton)
-            }
+            dom.processAccordionItemExpanding(board.id, accordionButton)
+        }
         );
         dom.setAccordionCollapseBody();
 
@@ -193,11 +193,11 @@ export let dom = {
         buttonRemoveBoard.setAttribute('class', 'btn btn-danger m-1');
         buttonRemoveBoard.innerText = 'Remove Board';
         buttonRemoveBoard.addEventListener('click', () => {
-          if(window.confirm("Are you sure to remove this board?")) {
-              dataHandler.deleteBoard(board_id, () => {
-                  accordionItem.remove()
-            })
-          }
+            if (window.confirm("Are you sure to remove this board?")) {
+                dataHandler.deleteBoard(board_id, () => {
+                    accordionItem.remove()
+                })
+            }
         })
         return buttonRemoveBoard;
     },
@@ -207,11 +207,12 @@ export let dom = {
         buttonRemoveBoard.innerText = 'Rename board';
         buttonRemoveBoard.addEventListener('click', () => {
             const boardHeadingButton = accordionItem.querySelector(`h2#heading${board_id} button`);
-            const updateForm = this.createUpdateColumn(boardHeadingButton.innerText, board_id, () => {
+            const updateForm = this.createUpdateBoard(boardHeadingButton, board_id, () => {
                 console.log('SUCCED !!! === board name edition');
+                updateForm.replaceWith(boardHeadingButton);
             })
             boardHeadingButton.replaceWith(updateForm);
-
+            updateForm.querySelector('#input').select();
         })
         return buttonRemoveBoard;
     },
@@ -236,7 +237,7 @@ export let dom = {
         accordionButton.setAttribute('aria-expanded', `false`);
         accordionButton.setAttribute('aria-controls', this.collapseId);
         accordionButton.setAttribute('click-cooldown', 'false');
-        },
+    },
     setAccordionCollapseBody() {
         this.accordionCollapseBody.setAttribute('id', this.collapseId);
         this.accordionCollapseBody.setAttribute('class', "accordion-collapse collapse");
@@ -266,7 +267,7 @@ export let dom = {
 
 
     // ===============
-// ================ COLUMNS
+    // ================ COLUMNS
 
 
 
@@ -286,9 +287,9 @@ export let dom = {
 
         // add status-columns
         for (let status of boardStatuses) {
-                const colDiv = dom.createStatusColumn(boardId, status)
+            const colDiv = dom.createStatusColumn(boardId, status)
 
-                accBody.appendChild(colDiv);
+            accBody.appendChild(colDiv);
         }
     },
     createUpdateColumn(title, columnId, callback) {
@@ -299,9 +300,45 @@ export let dom = {
             evt.preventDefault()
             updateInput.blur()
 
-            dataHandler.updateColumn({id: columnId, title: updateInput.value}, () => {
+            dataHandler.updateColumn({ id: columnId, title: updateInput.value }, () => {
                 title.innerText = updateInput.value;
             })
+        })
+
+        const updateInput = document.createElement('input');
+        updateInput.setAttribute('value', title.innerText);
+        updateInput.setAttribute('class', 'form-control update-card');
+        updateInput.setAttribute('id', 'input');
+        updateInput.addEventListener("focusout", () => {
+            setTimeout(() => {
+                callback()
+            }, 150)
+        })
+
+        const updateButton = document.createElement('button');
+        updateButton.setAttribute('class', 'btn btn-success update-card');
+        updateButton.insertAdjacentHTML('afterbegin', '<i class="fas fa-check"></i>');
+
+        updateForm.appendChild(updateInput);
+        updateForm.appendChild(updateButton);
+
+        return updateForm
+    },
+    createUpdateBoard(title, boardId, callback) {
+        const updateForm = document.createElement('form');
+        updateForm.setAttribute('class', 'flex-center-middle g-1 my-card-form')
+        updateForm.setAttribute('method', 'post')
+        updateForm.addEventListener('submit', (evt) => {
+            evt.preventDefault()
+            updateInput.blur()
+
+            // dataHandler.updateColumn({ id: boardId, title: updateInput.value}, () => {
+            //     title.innerText = updateInput.value;
+            // })
+            console.log({ id: boardId, title: updateInput.value }, 'success board!!!!!!!');
+            dataHandler.updateBoard({ id: boardId, title: updateInput.value }, () => {
+                title.innerText = updateInput.value;
+            });
         })
 
         const updateInput = document.createElement('input');
@@ -328,7 +365,7 @@ export let dom = {
         const colDiv = document.createElement('div');
 
         const headerContainer = document.createElement('div')
-        headerContainer.setAttribute('class','column-header-container card');
+        headerContainer.setAttribute('class', 'column-header-container card');
 
         const statusTitle = document.createElement('h4');
         const btnDeleteColumn = this.createColumnButtonDelete(boardId, status, colDiv);
@@ -350,7 +387,7 @@ export let dom = {
         colDiv.appendChild(statusContent);
 
         const updateContainer = document.createElement('div')
-        updateContainer.setAttribute('class','column-header-container card');
+        updateContainer.setAttribute('class', 'column-header-container card');
 
         const columnId = colDiv.getAttribute('data-column');
 
@@ -373,7 +410,7 @@ export let dom = {
         btnDeleteColumn.setAttribute('class', 'btn btn-danger btn-sm button-card-delete')
         btnDeleteColumn.innerHTML = '<i class="fas fa-trash"></i>'
         btnDeleteColumn.addEventListener('click', () => {
-            if(confirm('Are you sure to delete column?')) {
+            if (confirm('Are you sure to delete column?')) {
                 dataHandler.deleteColumn(boardId, status.id, () => {
                     column.remove()
                 })
@@ -388,7 +425,7 @@ export let dom = {
         form.addEventListener('submit', (event) => {
             event.preventDefault();
             const inputField = document.getElementById('input');
-            dataHandler.createNewColumn({'title': inputField.value, 'boardId': boardId}, (newColumn) => {
+            dataHandler.createNewColumn({ 'title': inputField.value, 'boardId': boardId }, (newColumn) => {
                 modal.replaceWith(dom.createAddColumnButton(boardId));
                 dom.appendColumnToBoard(boardId, newColumn);
             });
@@ -427,7 +464,7 @@ export let dom = {
 
 
     // ===============
-// ================     CARDS
+    // ================     CARDS
 
 
     showCards: function (cards) {
@@ -455,7 +492,7 @@ export let dom = {
         });
         const updateSection = this.createUpdateSection(card.title, cardDiv);
 
-        cardDiv.addEventListener('dblclick', function() {
+        cardDiv.addEventListener('dblclick', function () {
             this.replaceWith(updateSection);
             updateSection.querySelector("#input").focus();
         })
@@ -474,8 +511,8 @@ export let dom = {
             evt.preventDefault()
             const id = cardDiv.getAttribute('data-card')
             const title = updateInput.value;
-            dataHandler.updateCard({'card_id': id, 'card_title': title}, () => {
-                cardDiv = dom.createCard({id: id, title: title })
+            dataHandler.updateCard({ 'card_id': id, 'card_title': title }, () => {
+                cardDiv = dom.createCard({ id: id, title: title })
                 // updateForm.replaceWith(cardDiv);
 
                 updateInput.blur()
@@ -542,7 +579,7 @@ export let dom = {
         form.addEventListener('submit', (event) => {
             event.preventDefault();
             const inputValue = document.getElementById('input').value;
-            const dataObject = {'title': inputValue, 'board_id': boardId, 'status_id': columnId};
+            const dataObject = { 'title': inputValue, 'board_id': boardId, 'status_id': columnId };
             dataHandler.createNewCard(dataObject, (card) => {
                 const button = dom.createAddCardButton(boardId, columnId);
                 modal.replaceWith(button);
@@ -554,7 +591,7 @@ export let dom = {
         const modalouter = document.createElement('div');
         const modal = document.createElement('div');
         modal.setAttribute('class', "add-card-modal");
-        modalouter.style.height = "40px" ;
+        modalouter.style.height = "40px";
         modal.insertAdjacentHTML('afterbegin', htmlComponents.getModalInputForm(labelText));
         modal.querySelector('#buttonCancel').remove();
         modal.querySelector('.flex-center-middle').setAttribute('class', "flex-add-card");
@@ -573,6 +610,6 @@ export let dom = {
             }, 100)
         });
         return modalouter;
-},
+    },
 }
 

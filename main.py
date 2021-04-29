@@ -105,6 +105,12 @@ def update_column():
     print(request.get_json())
     data_handler.update_column(request.get_json())
 
+@app.route("/update-board", methods=["PUT"])
+@json_response
+def update_board():
+    print(request.get_json())
+    data_handler.update_board(request.get_json())
+
 def main():
     app.run(debug=True)
 

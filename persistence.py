@@ -64,6 +64,7 @@ def get_statuses(cursor: RealDictCursor):
 def get_boards(cursor: RealDictCursor):
     query = f"""
     SELECT * FROM board
+    ORDER BY id
     """
     cursor.execute(query)
 
@@ -238,3 +239,11 @@ def update_column(cursor: RealDictCursor, column_data):
     """
     cursor.execute(command, column_data)
 
+@data_connection.connection_handler
+def update_board(cursor: RealDictCursor, board_data):
+    print(board_data, 'board data!!!!!!')
+    command = f"""
+        UPDATE board SET title=%(title)s
+        WHERE id=%(id)s
+    """
+    cursor.execute(command, board_data)

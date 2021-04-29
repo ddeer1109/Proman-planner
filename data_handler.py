@@ -71,3 +71,6 @@ def update_card(card_data):
 
 def update_column(column_data):
     persistence.update_column(column_data)
+
+def update_board(board_data):
+    persistence.update_board(board_data)
