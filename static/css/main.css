@@ -286,7 +286,7 @@ form {
     padding: 0.5rem;
 }
 
-.remove-board-div {
+.board-buttons-div {
     background-color: black;
     display: flex;
     align-items: center;

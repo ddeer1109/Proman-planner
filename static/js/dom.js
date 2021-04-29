@@ -144,7 +144,7 @@ export let dom = {
     },
     addNewBoardToContainer(newBoard) {
         const accItem = dom.createAccordionItem(newBoard);
-        const removeBoardButton = this.removeBoardButton(accItem, accItem.getAttribute('id'))
+        const removeBoardButton = this.addBoardButtonsDiv(accItem, accItem.getAttribute('id'))
         // accItem.lastChild.appendChild(removeBoardButton);
         accItem.lastChild.insertAdjacentElement('afterbegin', removeBoardButton);
         dom.accordionContainer.appendChild(accItem);
@@ -176,24 +176,44 @@ export let dom = {
         return this.accordionItem;
     },
 
-    removeBoardButton(accordionItem, board_id) {
-      const buttonRemoveBoard = document.createElement('button');
-      buttonRemoveBoard.setAttribute('class', 'btn btn-danger m-1');
-      buttonRemoveBoard.innerText = 'Remove Board';
-      buttonRemoveBoard.addEventListener('click', () => {
+    addBoardButtonsDiv(accordionItem, board_id) {
+        const buttonRemoveBoard = this.createRemoveBoardButton(accordionItem, board_id);
+
+        const buttonUpdateBoard = this.createUpdateBoardButton(accordionItem, board_id);
+
+        const removeBoardDiv = document.createElement('div')
+        removeBoardDiv.setAttribute('class', 'board-buttons-div');
+        removeBoardDiv.appendChild(buttonUpdateBoard);
+        removeBoardDiv.appendChild(buttonRemoveBoard);
+
+        return removeBoardDiv
+    },
+    createRemoveBoardButton(accordionItem, board_id) {
+        const buttonRemoveBoard = document.createElement('button');
+        buttonRemoveBoard.setAttribute('class', 'btn btn-danger m-1');
+        buttonRemoveBoard.innerText = 'Remove Board';
+        buttonRemoveBoard.addEventListener('click', () => {
           if(window.confirm("Are you sure to remove this board?")) {
               dataHandler.deleteBoard(board_id, () => {
                   accordionItem.remove()
             })
           }
-      })
+        })
+        return buttonRemoveBoard;
+    },
+    createUpdateBoardButton(accordionItem, board_id) {
+        const buttonRemoveBoard = document.createElement('button');
+        buttonRemoveBoard.setAttribute('class', 'btn btn-warning m-1');
+        buttonRemoveBoard.innerText = 'Rename board';
+        buttonRemoveBoard.addEventListener('click', () => {
+            const boardHeadingButton = accordionItem.querySelector(`h2#heading${board_id} button`);
+            const updateForm = this.createUpdateColumn(boardHeadingButton.innerText, board_id, () => {
+                console.log('SUCCED !!! === board name edition');
+            })
+            boardHeadingButton.replaceWith(updateForm);
 
-        const removeBoardDiv = document.createElement('div')
-        removeBoardDiv.setAttribute('class', 'remove-board-div');
-
-        removeBoardDiv.appendChild(buttonRemoveBoard);
-
-      return removeBoardDiv
+        })
+        return buttonRemoveBoard;
     },
     processAccordionItemExpanding(board_id, accordionButton) {
         accordionButton.setAttribute('disabled', 'true');
@@ -272,7 +292,6 @@ export let dom = {
         }
     },
     createUpdateColumn(title, columnId, callback) {
-        // const updateForm = htmlComponents.getModalInputForm("XYZ");
         const updateForm = document.createElement('form');
         updateForm.setAttribute('class', 'flex-center-middle g-1 my-card-form')
         updateForm.setAttribute('method', 'post')
@@ -282,12 +301,8 @@ export let dom = {
 
             dataHandler.updateColumn({id: columnId, title: updateInput.value}, () => {
                 title.innerText = updateInput.value;
-                console.log('SUCCESS ============================')
             })
         })
-
-        // const updateContainer = document.createElement('div');
-        // updateContainer.setAttribute('class', 'flex-center-middle');
 
         const updateInput = document.createElement('input');
         updateInput.setAttribute('value', title.innerText);
