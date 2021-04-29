@@ -68,3 +68,6 @@ def delete_board(board_id):
 
 def update_card(card_data):
     persistence.update_card(card_data)
+
+def update_column(column_data):
+    persistence.update_column(column_data)

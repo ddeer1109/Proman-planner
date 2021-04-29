@@ -271,7 +271,45 @@ export let dom = {
                 accBody.appendChild(colDiv);
         }
     },
+    createUpdateColumn(title, columnId, callback) {
+        // const updateForm = htmlComponents.getModalInputForm("XYZ");
+        const updateForm = document.createElement('form');
+        updateForm.setAttribute('class', 'flex-center-middle g-1 my-card-form')
+        updateForm.setAttribute('method', 'post')
+        updateForm.addEventListener('submit', (evt) => {
+            evt.preventDefault()
+            updateInput.blur()
+
+            dataHandler.updateColumn({id: columnId, title: updateInput.value}, () => {
+                title.innerText = updateInput.value;
+                console.log('SUCCESS ============================')
+            })
+        })
+
+        // const updateContainer = document.createElement('div');
+        // updateContainer.setAttribute('class', 'flex-center-middle');
+
+        const updateInput = document.createElement('input');
+        updateInput.setAttribute('value', title.innerText);
+        updateInput.setAttribute('class', 'form-control update-card');
+        updateInput.setAttribute('id', 'input');
+        updateInput.addEventListener("focusout", () => {
+            setTimeout(() => {
+                callback()
+            }, 150)
+        })
+
+        const updateButton = document.createElement('button');
+        updateButton.setAttribute('class', 'btn btn-success update-card');
+        updateButton.insertAdjacentHTML('afterbegin', '<i class="fas fa-check"></i>');
+
+        updateForm.appendChild(updateInput);
+        updateForm.appendChild(updateButton);
+
+        return updateForm
+    },
     createStatusColumn(boardId, status) {
+
         const colDiv = document.createElement('div');
 
         const headerContainer = document.createElement('div')
@@ -295,6 +333,23 @@ export let dom = {
         colDiv.setAttribute('data-column', status.id);
         colDiv.appendChild(headerContainer);
         colDiv.appendChild(statusContent);
+
+        const updateContainer = document.createElement('div')
+        updateContainer.setAttribute('class','column-header-container card');
+
+        const columnId = colDiv.getAttribute('data-column');
+
+        const updateSection = this.createUpdateColumn(statusTitle, columnId, () => {
+
+            updateContainer.replaceWith(headerContainer)
+        })
+        updateContainer.appendChild(updateSection)
+
+        headerContainer.addEventListener('dblclick', () => {
+            headerContainer.replaceWith(updateContainer)
+            updateContainer.querySelector('#input').select();
+        })
+
 
         return colDiv;
     },

@@ -35,6 +35,22 @@ export let dataHandler = {
                 callback(json_response)
             });
     },
+    _api_put: function (url, data, callback) {
+        fetch(url, {
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            method: 'PUT',
+
+            body: JSON.stringify(data)
+            }
+        )
+            .then(response => response.json())
+            .then(json_response => {
+                // console.log("json response", json_response)
+                callback(json_response)
+            });
+    },
     _api_delete: function (url, callback) {
         fetch(url, {
             method: 'DELETE'
@@ -139,6 +155,12 @@ export let dataHandler = {
         this._api_post(`/update-card`, card_data, () => {
             callback();
         })
+    },
+    updateColumn(column_data, callback) {
+        this._api_put(`/update-column`, column_data, () => {
+            callback();
+        })
     }
+
 
 };

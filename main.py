@@ -99,6 +99,11 @@ def delete_board(board_id: int):
 def update_card():
     data_handler.update_card(request.get_json())
 
+@app.route("/update-column", methods=["PUT"])
+@json_response
+def update_column():
+    print(request.get_json())
+    data_handler.update_column(request.get_json())
 
 def main():
     app.run(debug=True)

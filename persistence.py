@@ -47,6 +47,7 @@ def clear_cache():
 def get_statuses(cursor: RealDictCursor):
     query = """
     SELECT * FROM status
+    ORDER BY id
     """
     cursor.execute(query)
 
@@ -97,7 +98,8 @@ def get_board_statuses(cursor: RealDictCursor, board_id):
             SELECT status.id as id, status.title as title FROM status
             INNER JOIN board_status
             ON board_status.status_id=status.id
-            WHERE board_status.board_id=%(board_id)s;
+            WHERE board_status.board_id=%(board_id)s
+            ORDER BY id;            
             """
     cursor.execute(query, {'board_id': board_id})
 
@@ -227,4 +229,12 @@ def update_card(cursor: RealDictCursor, card_data):
     """
 
     cursor.execute(command, {'id': card_data['card_id'], 'title': card_data['card_title']})
+
+@data_connection.connection_handler
+def update_column(cursor: RealDictCursor, column_data):
+    command = f"""
+        UPDATE status SET title=%(title)s
+        WHERE id=%(id)s
+    """
+    cursor.execute(command, column_data)
 
