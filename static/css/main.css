@@ -141,6 +141,7 @@ h2 button {
     animation-name: heightAnimation, modalopen;
     width: 260px;
     padding: 0.8rem;
+    padding-bottom: 50px;
     display:flex;
     flex-direction: column;
     animation-timing-function: ease-in;
@@ -149,6 +150,7 @@ h2 button {
     min-width: 12rem;
     /*min-height: 25vh;*/
     background-color: #f8f8f8;
+
 }
 
 div.status-column h4 {
@@ -349,3 +351,23 @@ form {
         /*min-height: auto;*/
     }
   }
+
+/*DRAGGABLE*/
+.empty {
+    border: none;
+    background-color: transparent;
+}
+
+.hold {
+    border: 5px solid #cac6c6;
+}
+
+.hovered {
+    /*background-color: #cac6c6;*/
+    background-color: red;
+    /*border: 5px dashed rgb(63, 60, 236);*/
+}
+
+.invisible {
+    display: none;
+}

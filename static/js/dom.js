@@ -8,7 +8,7 @@
 
 // It uses data_handler.js to visualize elements
 import { dataHandler } from "./data_handler.js";
-
+import { drag_and_drop } from "./drag_and_drop.js";
 
 // ================ Utilities
 export let htmlSelectors = {
@@ -138,7 +138,12 @@ export let dom = {
         dataHandler.getCardsByBoardId(boardId, function (cards) {
             dom.initBoardColumnsRenderPromise(boardId)
                 .then(() => {
-                    setTimeout(() => dom.showCards(cards), 800)
+                    setTimeout(() => dom.showCards(cards), 0)
+                })
+                .then(() => {
+                    setTimeout(() => {
+                        drag_and_drop.init();
+                    }, 0)
                 })
         });
     },
@@ -480,6 +485,7 @@ export let dom = {
         const cardDiv = document.createElement('div');
         cardDiv.setAttribute('class', 'card');
         cardDiv.setAttribute('data-card', `${card.id}`);
+        cardDiv.setAttribute('draggable', 'true');
         cardDiv.innerText = card.title;
 
         const buttonDelete = document.createElement('button')
@@ -514,7 +520,9 @@ export let dom = {
             dataHandler.updateCard({ 'card_id': id, 'card_title': title }, () => {
                 cardDiv = dom.createCard({ id: id, title: title })
                 // updateForm.replaceWith(cardDiv);
-
+                setTimeout(() => {
+                    drag_and_drop.init()
+                }, 100)
                 updateInput.blur()
             })
         })
@@ -551,6 +559,9 @@ export let dom = {
         const boardAccBody = htmlSelectors.getAccordionBody(card.board_id);
         const cardsStatusColumnDiv = htmlSelectors.getColumn(boardAccBody, columnId);
         cardsStatusColumnDiv.appendChild(cardDiv);
+        setTimeout(() => {
+            drag_and_drop.init()
+        }, 100)
     },
     deleteCard(card, card_id) {
         dataHandler.deleteCard(card_id, () => {
