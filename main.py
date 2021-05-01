@@ -79,6 +79,7 @@ def post_new_card():
     print(new_card)
     return new_card
 
+
 @app.route("/delete-card/<int:card_id>", methods=["DELETE"])
 @json_response
 def delete_card(card_id: int):
@@ -102,14 +103,18 @@ def update_card():
 @app.route("/update-column", methods=["PUT"])
 @json_response
 def update_column():
-    print(request.get_json())
     data_handler.update_column(request.get_json())
 
 @app.route("/update-board", methods=["PUT"])
 @json_response
 def update_board():
-    print(request.get_json())
     data_handler.update_board(request.get_json())
+
+@app.route("/update-cards-indexes", methods=["PUT"])
+@json_response
+def update_cards_indexes():
+    data_handler.update_cards_indexes(request.get_json())
+
 
 def main():
     app.run(debug=True)
