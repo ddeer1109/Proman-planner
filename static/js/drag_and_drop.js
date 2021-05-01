@@ -1,3 +1,4 @@
+import { dataHandler } from "./data_handler.js";
 export const drag_and_drop = {
     // cards: document.querySelectorAll("[draggable='true']"),
     // cols: document.querySelectorAll('.column-content'),
@@ -12,15 +13,19 @@ export const drag_and_drop = {
 
         this.cards = document.querySelectorAll("[draggable='true']");
         this.cols = document.querySelectorAll('.column-content');
-        console.log(this.cards, "cards")
-        console.log(this.cols, "cards")
+        // console.log(this.cards, "cards")
+        // console.log(this.cols, "cards")
 
         for (let card of drag_and_drop.cards) {
             card.addEventListener('dragstart', drag_and_drop.dragStartCard);
             card.addEventListener('dragend', drag_and_drop.dragEndCard);
             card.addEventListener('dragenter', drag_and_drop.dragEnterCard)
             card.addEventListener('dragleave', drag_and_drop.dragLeaveCard)
-            card.addEventListener('drop', drag_and_drop.dropCard);
+            card.addEventListener('drop', (evt) => {
+                drag_and_drop.dropCard(evt)
+                    .then((response) => drag_and_drop.refreshCardsIndexesInDataBase(response))
+                    .catch((err) => console.log(err, 'err'));
+            });
 
         }
 
@@ -28,9 +33,12 @@ export const drag_and_drop = {
             col.addEventListener('dragover', drag_and_drop.dragOver);
             col.addEventListener('dragenter', drag_and_drop.dragEnter);
             col.addEventListener('dragleave', drag_and_drop.dragLeave);
-            col.addEventListener('drop', drag_and_drop.dragDrop);
+            col.addEventListener('drop', (evt) => {
+                drag_and_drop.dragDrop(evt)
+                    .then((response) => drag_and_drop.refreshCardsIndexesInDataBase(response))
+                    .catch((err) => console.log(err, 'err'));
+            });
         }
-
     },
 
     dragStartCard: function dragStart(evt) {
@@ -65,22 +73,47 @@ export const drag_and_drop = {
     dragEnter: function dragEnter(e) {
         e.preventDefault();
     },
-
     dragLeave: function dragLeave(e) {
-        console.log('column-content checker - e.target', e.target)
+        // console.log('column-content checker - e.target', e.target)
     },
 
     dragDrop: function (evt) {
-        if (!evt.target.className.includes('card')) {
-            console.log("DRAG AND DROP", evt.target);
-            evt.target.append(drag_and_drop.currentCard)
-        }
+        return new Promise(((resolve, reject) => {
+            if (!evt.target.className.includes('card')) {
+                evt.target.append(drag_and_drop.currentCard)
+                let colStatusContent = evt.target;
+                console.log(colStatusContent)
+                resolve(colStatusContent.getAttribute('data-column'))
+            }
+        }))
     },
     dropCard(evt) {
-        console.log("DRAG AND DROP CARD", evt.target);
-        drag_and_drop.dragOverCard.insertAdjacentElement('beforebegin', drag_and_drop.currentCard);
-        drag_and_drop.dragOverCard.classList.remove('hovered')
-        drag_and_drop.dragOverCard = null;
+        return new Promise(((resolve, reject) => {
+            drag_and_drop.dragOverCard.insertAdjacentElement('beforebegin', drag_and_drop.currentCard);
+            drag_and_drop.dragOverCard = null;
+            let colStatusContent = evt.target.parentNode;
+            resolve(colStatusContent.getAttribute('data-column'))
+        }))
+        // drag_and_drop.dragOverCard.insertAdjacentElement('beforebegin', drag_and_drop.currentCard);
+        // drag_and_drop.dragOverCard = null;
+        // let colStatusContent = evt.target.parentNode;
+    },
+    refreshCardsIndexesInDataBase(columnId) {
+        setTimeout(() => {
+            let currentStatusContent = document.querySelectorAll(`.column-content[data-column="${columnId}"] .card`)
+            let cardsIds = [...currentStatusContent].map((el) => el.getAttribute('data-card'));
+
+            let jsonDataObject = {status_id: columnId, cards_ids: cardsIds};
+
+            console.log(jsonDataObject, 'current content');
+            dataHandler.updateCardsIndexes(jsonDataObject, () => {
+                console.log('success');
+            })
+        }, 0)
     }
 }
 
+// add data-index to card
+// on dropping card iterate over cards giving index from 0 to X
+// update indexes of cards in column
+// update status_id of dropped card

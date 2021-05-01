@@ -166,6 +166,11 @@ export let dataHandler = {
             callback();
         })
     },
+    updateCardsIndexes(cardsData, callback) {
+        this._api_put("/update-cards-indexes", cardsData, () => {
+            callback();
+        })
+    }
 
 
 };

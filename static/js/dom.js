@@ -382,6 +382,7 @@ export let dom = {
 
         statusTitle.innerText = status.title;
         statusContent.setAttribute('class', 'column-content');
+        statusContent.setAttribute('data-column', status.id);
 
         headerContainer.appendChild(statusTitle);
         headerContainer.appendChild(btnDeleteColumn);
@@ -485,6 +486,7 @@ export let dom = {
         const cardDiv = document.createElement('div');
         cardDiv.setAttribute('class', 'card');
         cardDiv.setAttribute('data-card', `${card.id}`);
+        cardDiv.setAttribute('data-index', `${card.index}`);
         cardDiv.setAttribute('draggable', 'true');
         cardDiv.innerText = card.title;
 

@@ -241,9 +241,20 @@ def update_column(cursor: RealDictCursor, column_data):
 
 @data_connection.connection_handler
 def update_board(cursor: RealDictCursor, board_data):
-    print(board_data, 'board data!!!!!!')
     command = f"""
         UPDATE board SET title=%(title)s
         WHERE id=%(id)s
     """
     cursor.execute(command, board_data)
+
+@data_connection.connection_handler
+def update_cards_indexes(cursor: RealDictCursor, cards_data):
+    for index, card_id in enumerate(cards_data['cards_ids']):
+        command = f"""
+                UPDATE card 
+                SET index=%(index)s,
+                status_id=%(status_id)s
+                WHERE id=%(card_id)s
+            """
+
+        cursor.execute(command, {'index': index, 'card_id': card_id, 'status_id': cards_data['status_id']})
