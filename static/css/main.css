@@ -353,6 +353,9 @@ form {
   }
 
 /*DRAGGABLE*/
+[draggable="true"] {
+    user-select: none;
+}
 .empty {
     border: none;
     background-color: transparent;
