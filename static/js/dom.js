@@ -519,7 +519,7 @@ export let dom = {
             const title = updateInput.value;
             dataHandler.updateCard({ 'card_id': id, 'card_title': title }, () => {
                 cardDiv = dom.createCard({ id: id, title: title })
-                // updateForm.replaceWith(cardDiv);
+                updateForm.replaceWith(cardDiv);
                 setTimeout(() => {
                     drag_and_drop.init()
                 }, 100)

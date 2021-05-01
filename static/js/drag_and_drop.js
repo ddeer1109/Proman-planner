@@ -1,17 +1,24 @@
 export const drag_and_drop = {
-    cards: document.querySelectorAll("[draggable='true']"),
-    cols: document.querySelectorAll('.column-content'),
+    // cards: document.querySelectorAll("[draggable='true']"),
+    // cols: document.querySelectorAll('.column-content'),
     // currentCard: null,
     // dragOverCard: null,
+    cards: null,
+    cols: null,
 
     init: function () {
+        this.cards = null;
+        this.cols = null;
+
+        this.cards = document.querySelectorAll("[draggable='true']");
+        this.cols = document.querySelectorAll('.column-content');
         // const cards = document.querySelectorAll("[draggable='true']");
         // const cols = document.querySelectorAll('.column-content');
+
        let currentCard = null;
        let dragOverCard = null;
-    // let mousePosition = 0;
-        this.refreshCardState();
-        this.refreshColumState();
+        // this.refreshCardState();
+        // this.refreshColumState();
         // console.log(this.cards);
 
         for(let card of this.cards) {
@@ -59,7 +66,7 @@ export const drag_and_drop = {
         }
 
         function dragDrop(evt) {
-            console.log('dragDrop')
+            console.log('dragDrop ======')
             console.log(currentCard);
             this.className = 'column-content';
 
@@ -70,17 +77,19 @@ export const drag_and_drop = {
                 dragOverCard.classList.remove('hovered')
                 dragOverCard = null;
             } else {
-                this.append(currentCard)
+                if(currentCard != null)
+                    this.append(currentCard)
             }
 
-            currentCard = null;
+            // currentCard = null;
         }
 
         function dragStart(evt) {
             currentCard = evt.target;
             console.log(currentCard);
 
-            this.className += ' hold';
+            // this.className += ' hold';
+            this.classList.add('hold');
             setTimeout(() => {
                 this.className = 'invisible';
             }, 0);
@@ -91,6 +100,7 @@ export const drag_and_drop = {
             // dragOverCard.classList.remove('hovered')
         }
 },
+
     refreshCardState: function () {
         this.cards = document.querySelectorAll("[draggable='true']");
         // this.init();
