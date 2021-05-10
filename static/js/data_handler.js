@@ -29,13 +29,8 @@ export let dataHandler = {
             body: JSON.stringify(data)
         }
         )
-            .then(response => {
-                console.log("response at data_handler", response)
-                console.log("response at data_handler", response.json())
-                return response.json()
-            })
+            .then(response => response.json())
             .then(json_response => {
-                console.log("json response", json_response)
                 callback(json_response)
             });
     },
