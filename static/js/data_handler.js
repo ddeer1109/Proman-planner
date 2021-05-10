@@ -29,9 +29,13 @@ export let dataHandler = {
             body: JSON.stringify(data)
         }
         )
-            .then(response => response.json())
+            .then(response => {
+                console.log("response at data_handler", response)
+                console.log("response at data_handler", response.json())
+                return response.json()
+            })
             .then(json_response => {
-                // console.log("json response", json_response)
+                console.log("json response", json_response)
                 callback(json_response)
             });
     },
@@ -170,7 +174,12 @@ export let dataHandler = {
         this._api_put("/update-cards-indexes", cardsData, () => {
             callback();
         })
+    },
+    createNewUser(user, callback) {
+        console.log(user)
+        this._api_post("/sign-up", user, () => {
+            console.log('after ', user)
+            callback();
+        })
     }
-
-
 };

@@ -78,3 +78,6 @@ def update_board(board_data):
 
 def update_cards_indexes(cards_data):
     persistence.update_cards_indexes(cards_data)
+
+def createNewUser(user):
+    persistence.createNewUser(user)

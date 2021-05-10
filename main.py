@@ -115,6 +115,13 @@ def update_board():
 def update_cards_indexes():
     data_handler.update_cards_indexes(request.get_json())
 
+@app.route("/sign-up", methods=["POST"])
+@json_response
+def registration():
+    print("registration")
+    print(request.get_json())
+    data_handler.createNewUser(request.get_json())
+
 
 def main():
     app.run(debug=True)

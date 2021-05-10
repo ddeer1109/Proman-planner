@@ -258,3 +258,19 @@ def update_cards_indexes(cursor: RealDictCursor, cards_data):
             """
 
         cursor.execute(command, {'index': index, 'card_id': card_id, 'status_id': cards_data['status_id']})
+
+@data_connection.connection_handler
+def createNewUser(cursor: RealDictCursor, user):
+    command = f"""
+        INSERT INTO users(login, password)
+        VALUES (%(login)s, %(password)s)
+    """
+
+    cursor.execute(command, user)
+
+
+
+
+
+
+

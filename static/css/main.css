@@ -270,6 +270,17 @@ form {
     border-top-left-radius: 0;
 }
 
+.signing {
+    border-bottom-left-radius: 5px;
+    border-top-left-radius: 5px;
+}
+
+.registration-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 #input {
     border-bottom-right-radius: 0;
     border-top-right-radius: 0;
@@ -374,4 +385,10 @@ form {
 
 .invisible {
     display: none;
+}
+
+.signing-section {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
 }

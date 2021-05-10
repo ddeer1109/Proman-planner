@@ -38,14 +38,37 @@ export let htmlComponents = {
             </form>
         `
     },
+    getModalRegistrationForm(labelText) {
+        return `
+            <form id="form" class="flex-center-middle g-1" method="post">
+                <div>                     
+                    <div class="">
+                        <input id="input-login" type="text" class="form-control" placeholder="login" required>
+                        <input id="input-password" type="password" class="form-control" placeholder="password" required>
+                    </div>  
+                    <div class="registration-buttons">
+                        <button id="buttonSubmit" type="submit" class="btn btn-success signing m-1">Submit</button>
+                        <button id="buttonCancel" type="button" class="btn btn-warning m-1">Cancel</button>
+                    </div>
+                </div>
+            </form>
+        `
+    },
 }
 
 export let dom = {
     accordionContainer: null,
+    buttons: {
+        logging: document.getElementById('logging'),
+        registration: document.getElementById('registration')
+    },
+
     init: function () {
         // This function should run once, when the page is loaded.
         dataHandler.init();
         dom.createAddBoardButton();
+        dom.setSigningButtons();
+
     },
     createAccordion: function (boards) {
         const accordionContainer = document.createElement('div');
@@ -56,6 +79,43 @@ export let dom = {
             dom.addNewBoardToContainer(board);
         }
         return accordionContainer;
+    },
+
+    // ===============
+    // ================ USERS REGISTRATION / LOGIN
+    setSigningButtons() {
+        dom.buttons.logging.onclick = dom.logging;
+        dom.buttons.registration.onclick = dom.registration;
+    },
+    registration() {
+        console.log('registeration')
+        dom.createRegistrationModal();
+
+    },
+    logging() {
+        console.log('logging')
+    },
+
+    createRegistrationModal() {
+        const modal = dom.createAddFormModal('Board title', htmlComponents.getModalRegistrationForm("Modal Registration"));
+        const form = document.getElementById('form');
+        const inputLogin = document.getElementById('input-login');
+        const inputPassword = document.getElementById('input-password');
+
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            dataHandler.createNewUser({login: inputLogin.value, password: inputPassword.value}, () => {
+                console.log("SUCCESS new user")
+                modal.remove();
+            })
+        });
+
+
+        // inputField.addEventListener('focusout', () => {
+        //     setTimeout(() => modal.remove(), 1000);
+        // });
     },
 
 
@@ -92,7 +152,7 @@ export let dom = {
         pageHeader.insertAdjacentElement('afterend', addingButton);
     },
     showAddBoardModal() {
-        const modal = dom.createAddBoardModal('Board title');
+        const modal = dom.createAddFormModal('Board title');
         const form = document.getElementById('form');
         const inputField = document.getElementById('input');
         // inputField.select();
@@ -111,10 +171,10 @@ export let dom = {
             setTimeout(() => modal.remove(), 1000);
         });
     },
-    createAddBoardModal(labelText) {
+    createAddFormModal(labelText, htmlForm = htmlComponents.getModalInputForm(labelText)) {
         const modal = document.createElement('div');
         const formContainer = document.createElement('div');
-        modal.insertAdjacentHTML('afterbegin', htmlComponents.getModalInputForm(labelText));
+        modal.insertAdjacentHTML('afterbegin', htmlForm);
         formContainer.setAttribute('class', 'container-modal-form display-modal');
         formContainer.appendChild(modal);
         document.body.appendChild(formContainer);

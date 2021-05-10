@@ -93,7 +93,6 @@ ALTER TABLE ONLY card
 ALTER TABLE ONLY card
     ADD CONSTRAINT fk_card_status_id FOREIGN KEY (status_id) REFERENCES status(id);
 
-
 INSERT INTO board VALUES (1, 'Proman project');
 INSERT INTO board VALUES (2, 'PA web');
 INSERT INTO board VALUES (3, 'Not related with programming');
