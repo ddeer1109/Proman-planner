@@ -4,7 +4,8 @@
 // (watch out: when you would like to use a property/function of an object from the
 // object itself then you must use the 'this' keyword before. For example: 'this._data' below)
 export let dataHandler = {
-    _data: {}, // it is a "cache for all data received: boards, cards and statuses. It is not accessed from outside.
+    _data: {},
+    _session: {},// it is a "cache for all data received: boards, cards and statuses. It is not accessed from outside.
     _api_get: function (url, callback) {
         // it is not called from outside
         // loads data from API, parses it and calls the callback with it
@@ -176,5 +177,16 @@ export let dataHandler = {
             console.log('after ', user)
             callback();
         })
+    },
+    validateUserLogin(userData, callback) {
+         this._api_post("/sign-in", userData, (response) => {
+            console.log('after ', response)
+            callback(response);
+        })
+    },
+    setSession(id, user_name) {
+        this._session.id = id;
+        this._session.user_name = user_name;
+        console.log(this._session);
     }
 };

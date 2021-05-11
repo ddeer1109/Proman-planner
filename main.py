@@ -1,4 +1,6 @@
-from flask import Flask, render_template, url_for, request, jsonify
+from os import environ
+
+from flask import Flask, render_template, url_for, request, jsonify, session, make_response
 from util import json_response
 
 import data_handler
@@ -7,6 +9,8 @@ import mimetypes
 mimetypes.add_type('application/javascript', '.js')
 
 app = Flask(__name__)
+session = {}
+app.config['SECRET_KEY'] = environ.get('SECRET_KEY')
 
 
 @app.route("/")
@@ -125,8 +129,30 @@ def registration():
     return {"message": "200"}
 
 
+@app.route("/sign-in", methods=["POST"])
+@json_response
+def login():
+    response = {"validated": "false", "user_id": "", "user_name": ""}
+    user_data = data_handler.get_user_if_validated(request.get_json())
+    print(user_data)
+
+    if user_data:
+        response["validated"] = "true"
+        response['user_id'] = user_data['id']
+        response['user_name'] = user_data['login']
+
+    return response
+
+
+@app.route("/check-session/", methods=["GET"])
+@json_response
+def check_session():
+    return session
+
+
 def main():
     app.run(debug=True)
+
 
     # Serving the favicon
     with app.app_context():

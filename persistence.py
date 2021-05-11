@@ -268,9 +268,13 @@ def createNewUser(cursor: RealDictCursor, user):
 
     cursor.execute(command, user)
 
+@data_connection.connection_handler
+def get_user(cursor: RealDictCursor, user_data):
+    query = f"""
+    
+        SELECT id, login from users
+        WHERE login=%(login)s AND password=%(password)s;
+    """
 
-
-
-
-
-
+    cursor.execute(query, user_data)
+    return cursor.fetchone()

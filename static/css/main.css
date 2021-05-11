@@ -270,7 +270,7 @@ form {
     border-top-left-radius: 0;
 }
 
-.signing {
+.signing-btn {
     border-bottom-left-radius: 5px;
     border-top-left-radius: 5px;
 }
@@ -391,4 +391,20 @@ form {
     display: flex;
     justify-content: flex-end;
     align-items: center;
+}
+
+.sign-dialogue {
+    background-color: #bebebe;
+    padding: 2rem;
+    border-radius: 5px;
+}
+
+.signing {
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: lighter;
+}
+
+input.signing {
+    border: 1px solid #5a5a5a;
 }

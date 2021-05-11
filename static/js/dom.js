@@ -38,36 +38,43 @@ export let htmlComponents = {
             </form>
         `
     },
-    getModalRegistrationForm(labelText) {
+    getModalSigningForm(labelText) {
         return `
             <form id="form" class="flex-center-middle g-1" method="post">
-                <div>                     
+                <div class="sign-dialogue">                     
+                    <h3 class="signing">${labelText}</h3>
                     <div class="">
-                        <input id="input-login" type="text" class="form-control" placeholder="login" required>
-                        <input id="input-password" type="password" class="form-control" placeholder="password" required>
+                        <input id="input-login" type="text" class="form-control m-1 signing" placeholder="login" required>
+                        <input id="input-password" type="password" class="form-control m-1 signing" placeholder="password" required>
                     </div>  
                     <div class="registration-buttons">
-                        <button id="buttonSubmit" type="submit" class="btn btn-success signing m-1">Submit</button>
-                        <button id="buttonCancel" type="button" class="btn btn-warning m-1">Cancel</button>
+                        <button id="buttonSubmit" type="submit" class="btn btn-success signing-btn m-2">Submit</button>
+                        <button id="buttonCancel" type="button" class="btn btn-warning m-2">Cancel</button>
                     </div>
                 </div>
             </form>
         `
     },
+    unloggedSigningButtons() {
+        return `
+            <button id="registration" type="button" class="btn btn-outline-light m-1">Register</button>
+            <button id="logging" type="button" class="btn btn-outline-light m-1">Log in</button>
+        `
+    }
 }
 
 export let dom = {
     accordionContainer: null,
     buttons: {
-        logging: document.getElementById('logging'),
-        registration: document.getElementById('registration')
+        logging: () => document.getElementById('logging'),
+        registration: () => document.getElementById('registration')
     },
 
     init: function () {
         // This function should run once, when the page is loaded.
         dataHandler.init();
         dom.createAddBoardButton();
-        dom.setSigningButtons();
+        dom.insertSigningButtons();
 
     },
     createAccordion: function (boards) {
@@ -83,9 +90,16 @@ export let dom = {
 
     // ===============
     // ================ USERS REGISTRATION / LOGIN
+
+    insertSigningButtons() {
+        const signingBar = document.getElementById("signing-bar");
+        signingBar.insertAdjacentHTML('afterbegin', htmlComponents.unloggedSigningButtons())
+        console.log(this.buttons.logging())
+        this.setSigningButtons()
+    },
     setSigningButtons() {
-        dom.buttons.logging.onclick = dom.logging;
-        dom.buttons.registration.onclick = dom.registration;
+        dom.buttons.logging().onclick = dom.logging;
+        dom.buttons.registration().onclick = dom.registration;
     },
     registration() {
         console.log('registeration')
@@ -94,10 +108,11 @@ export let dom = {
     },
     logging() {
         console.log('logging')
-    },
+        dom.createLogInModal();
 
+    },
     createRegistrationModal() {
-        const modal = dom.createAddFormModal('Board title', htmlComponents.getModalRegistrationForm("Modal Registration"));
+        const modal = dom.createAddFormModal('Board title', htmlComponents.getModalSigningForm("Sign up"));
         const form = document.getElementById('form');
         const inputLogin = document.getElementById('input-login');
         const inputPassword = document.getElementById('input-password');
@@ -111,11 +126,27 @@ export let dom = {
                 modal.remove();
             })
         });
+    },
+    createLogInModal() {
+        const modal = dom.createAddFormModal('Board title', htmlComponents.getModalSigningForm("Sign in"));
+        const form = document.getElementById('form');
+        const inputLogin = document.getElementById('input-login');
+        const inputPassword = document.getElementById('input-password');
 
 
-        // inputField.addEventListener('focusout', () => {
-        //     setTimeout(() => modal.remove(), 1000);
-        // });
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            dataHandler.validateUserLogin({login: inputLogin.value, password: inputPassword.value}, (response) => {
+                console.log(response);
+                if (response.validated) {
+                    dataHandler.setSession(response.user_id, response.user_name);
+                    modal.remove()
+                } else {
+                    alert("Incorrect logging data.")
+                }
+            })
+        });
     },
 
 
@@ -171,7 +202,7 @@ export let dom = {
             setTimeout(() => modal.remove(), 1000);
         });
     },
-    createAddFormModal(labelText, htmlForm = htmlComponents.getModalInputForm(labelText)) {
+    createAddFormModal(labelText="Board title", htmlForm = htmlComponents.getModalInputForm(labelText)) {
         const modal = document.createElement('div');
         const formContainer = document.createElement('div');
         modal.insertAdjacentHTML('afterbegin', htmlForm);
