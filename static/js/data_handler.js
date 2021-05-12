@@ -4,7 +4,8 @@
 // (watch out: when you would like to use a property/function of an object from the
 // object itself then you must use the 'this' keyword before. For example: 'this._data' below)
 export let dataHandler = {
-    _data: {}, // it is a "cache for all data received: boards, cards and statuses. It is not accessed from outside.
+    _data: {},
+    _session: {},// it is a "cache for all data received: boards, cards and statuses. It is not accessed from outside.
     _api_get: function (url, callback) {
         // it is not called from outside
         // loads data from API, parses it and calls the callback with it
@@ -31,7 +32,6 @@ export let dataHandler = {
         )
             .then(response => response.json())
             .then(json_response => {
-                // console.log("json response", json_response)
                 callback(json_response)
             });
     },
@@ -68,6 +68,14 @@ export let dataHandler = {
             this._data['boards'] = response;
             callback(response);
         });
+    },
+    getPrivateBoards(callback) {
+        if (this.getSession()) {
+            this._api_get(`users/${this._session.id}/get-boards`, (response) => {
+                this._data['boards'] = response;
+                callback(response);
+            });
+        }
     },
     getBoard: function (boardId, callback) {
         // the board is retrieved and then the callback function is called with the board
@@ -113,6 +121,13 @@ export let dataHandler = {
     createNewBoard: function (boardData, callback) {
         // creates new board, saves it and calls the callback function with its data
         this._api_post('/new-board', boardData, (response) => {
+            this._data['boards'].push(response);
+            callback(response);
+        });
+    },
+    createNewPrivateBoard: function (boardData, callback) {
+        // creates new board, saves it and calls the callback function with its data
+        this._api_post(`/users/${this.getSession().id}/new-board`, boardData, (response) => {
             this._data['boards'].push(response);
             callback(response);
         });
@@ -170,7 +185,30 @@ export let dataHandler = {
         this._api_put("/update-cards-indexes", cardsData, () => {
             callback();
         })
-    }
-
+    },
+    createNewUser(user, callback) {
+        console.log(user)
+        this._api_post("/sign-up", user, () => {
+            console.log('after ', user)
+            callback();
+        })
+    },
+    validateUserLogin(userData, callback) {
+         this._api_post("/sign-in", userData, (response) => {
+            console.log('after ', response)
+            callback(response);
+        })
+    },
+    setSession(id, user_name) {
+        this._session.id = id;
+        this._session.user_name = user_name;
+        console.log(this._session);
+    },
+    getSession() {
+        return this._session;
+    },
+    isSessionOn() {
+        return this._session.id != undefined;
+    },
 
 };

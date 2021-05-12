@@ -1,4 +1,6 @@
-from flask import Flask, render_template, url_for, request, jsonify
+from os import environ
+
+from flask import Flask, render_template, url_for, request, jsonify, session, make_response
 from util import json_response
 
 import data_handler
@@ -7,6 +9,8 @@ import mimetypes
 mimetypes.add_type('application/javascript', '.js')
 
 app = Flask(__name__)
+session = {}
+app.config['SECRET_KEY'] = environ.get('SECRET_KEY')
 
 
 @app.route("/")
@@ -24,6 +28,14 @@ def get_boards():
     All the boards
     """
     return data_handler.get_boards()
+
+@app.route("/users/<int:user_id>/get-boards")
+@json_response
+def get_private_boards(user_id):
+    """
+    All the boards
+    """
+    return data_handler.get_private_boards(user_id)
 
 
 @app.route("/get-board/<int:board_id>")
@@ -59,8 +71,16 @@ def get_board_statuses(board_id: int):
 
 @app.route("/new-board", methods=["POST", "GET"])
 @json_response
-def post_new_board():
-    new_board = data_handler.add_new_board(request.get_json())
+def post_new_board(user_id=None):
+    if user_id:
+        new_board = data_handler.add_new_board(request.get_json())
+    return new_board
+
+
+@app.route("/users/<int:user_id>/new-board", methods=["POST", "GET"])
+@json_response
+def post_new_private_board(user_id):
+    new_board = data_handler.add_new_private_board(request.get_json(), user_id)
     return new_board
 
 
@@ -116,8 +136,41 @@ def update_cards_indexes():
     data_handler.update_cards_indexes(request.get_json())
 
 
+@app.route("/sign-up", methods=["POST"])
+@json_response
+def registration():
+    print("registration")
+    print(request.get_json())
+    data_handler.createNewUser(request.get_json())
+    return {"message": "200"}
+
+
+@app.route("/sign-in", methods=["POST"])
+@json_response
+def login():
+    response = {"validated": "false", "user_id": "", "user_name": ""}
+    user_data = data_handler.get_user_if_validated(request.get_json())
+    print(user_data)
+
+    if user_data:
+        response["validated"] = "true"
+        response['user_id'] = user_data['id']
+        response['user_name'] = user_data['login']
+
+    return response
+
+
+@app.route("/check-session/", methods=["GET"])
+@json_response
+def check_session():
+    return session
+
+
+
+
 def main():
     app.run(debug=True)
+
 
     # Serving the favicon
     with app.app_context():

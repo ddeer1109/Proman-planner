@@ -1,3 +1,8 @@
+ALTER TABLE IF EXISTS ONLY users_boards DROP CONSTRAINT IF EXISTS fk_user_id CASCADE;
+ALTER TABLE IF EXISTS ONLY users_boards DROP CONSTRAINT IF EXISTS fk_board_id CASCADE;
+ALTER TABLE IF EXISTS ONLY users DROP CONSTRAINT IF EXISTS pk_users_id CASCADE;
+
+
 ALTER TABLE IF EXISTS ONLY card DROP CONSTRAINT IF EXISTS fk_card_status_id CASCADE;
 ALTER TABLE IF EXISTS ONLY card DROP CONSTRAINT IF EXISTS fk_card_board_id CASCADE;
 ALTER TABLE IF EXISTS ONLY board_status DROP CONSTRAINT IF EXISTS fk_board_status_status_id CASCADE;
@@ -6,6 +11,22 @@ ALTER TABLE IF EXISTS ONLY card DROP CONSTRAINT IF EXISTS pk_card_id CASCADE;
 ALTER TABLE IF EXISTS ONLY status DROP CONSTRAINT IF EXISTS pk_status_id CASCADE;
 ALTER TABLE IF EXISTS ONLY board DROP CONSTRAINT IF EXISTS pk_board_id CASCADE;
 ALTER TABLE IF EXISTS ONLY board_status DROP CONSTRAINT IF EXISTS pk_board_status_id CASCADE;
+
+
+DROP TABLE IF EXISTS users;
+CREATE TABLE users (
+    id serial NOT NULL,
+    login text NOT NULL,
+    password text NOT NULL
+);
+
+DROP TABLE IF EXISTS users_boards;
+CREATE TABLE users_boards (
+    id serial NOT NULL,
+    user_id integer NOT NULL,
+    board_id integer NOT NULL
+);
+
 
 DROP TABLE IF EXISTS status;
 CREATE TABLE status (
@@ -16,7 +37,8 @@ CREATE TABLE status (
 DROP TABLE IF EXISTS board;
 CREATE TABLE board (
   id serial NOT NULL,
-  title text
+  title text,
+  private integer
 );
 
 DROP TABLE IF EXISTS card;
@@ -35,6 +57,11 @@ CREATE TABLE board_status (
   status_id integer
 );
 
+ALTER TABLE ONLY users_boards
+    ADD CONSTRAINT pk_users_boards_id PRIMARY KEY (id);
+
+ALTER TABLE ONLY users
+    ADD CONSTRAINT pk_users_id PRIMARY KEY (id);
 
 ALTER TABLE ONLY status
     ADD CONSTRAINT pk_status_id PRIMARY KEY (id);
@@ -48,6 +75,13 @@ ALTER TABLE ONLY card
 ALTER TABLE ONLY board_status
     ADD CONSTRAINT pk_board_status_id PRIMARY KEY (id);
 
+
+ALTER TABLE ONLY users_boards
+    ADD CONSTRAINT fk_users_boards_users_id FOREIGN KEY (user_id) REFERENCES users(id);
+
+ALTER TABLE ONLY users_boards
+    ADD CONSTRAINT fk_users_boards_board_id FOREIGN KEY (board_id) REFERENCES board(id);
+
 ALTER TABLE ONLY board_status
     ADD CONSTRAINT fk_board_status_board_id FOREIGN KEY (board_id) REFERENCES board(id);
 
@@ -60,9 +94,9 @@ ALTER TABLE ONLY card
 ALTER TABLE ONLY card
     ADD CONSTRAINT fk_card_status_id FOREIGN KEY (status_id) REFERENCES status(id);
 
-INSERT INTO board VALUES (1, 'Proman project');
-INSERT INTO board VALUES (2, 'PA web');
-INSERT INTO board VALUES (3, 'Not related with programming');
+INSERT INTO board VALUES (1, 'Proman project', 1);
+INSERT INTO board VALUES (2, 'PA web', 1);
+INSERT INTO board VALUES (3, 'Not related with programming', 0);
 SELECT pg_catalog.setval('board_id_seq', 3, true);
 
 INSERT INTO status VALUES (1, 'new');
@@ -101,3 +135,13 @@ INSERT INTO board_status VALUES (11, 3, 2);
 INSERT INTO board_status VALUES (12, 3, 3);
 INSERT INTO board_status VALUES (13, 3, 4);
 SELECT pg_catalog.setval('board_status_id_seq', 13, true);
+
+INSERT INTO users VALUES (1, 'user', 'password');
+INSERT INTO users VALUES (2, 'user1', 'password1');
+SELECT pg_catalog.setval('users_id_seq', 3, true);
+
+INSERT INTO users_boards VALUES (1, 1, 2);
+INSERT INTO users_boards VALUES (2, 1, 1);
+SELECT pg_catalog.setval('users_boards_id_seq', 3, true);
+
+
