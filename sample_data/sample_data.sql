@@ -37,7 +37,8 @@ CREATE TABLE status (
 DROP TABLE IF EXISTS board;
 CREATE TABLE board (
   id serial NOT NULL,
-  title text
+  title text,
+  private integer
 );
 
 DROP TABLE IF EXISTS card;
@@ -93,9 +94,9 @@ ALTER TABLE ONLY card
 ALTER TABLE ONLY card
     ADD CONSTRAINT fk_card_status_id FOREIGN KEY (status_id) REFERENCES status(id);
 
-INSERT INTO board VALUES (1, 'Proman project');
-INSERT INTO board VALUES (2, 'PA web');
-INSERT INTO board VALUES (3, 'Not related with programming');
+INSERT INTO board VALUES (1, 'Proman project', 1);
+INSERT INTO board VALUES (2, 'PA web', 1);
+INSERT INTO board VALUES (3, 'Not related with programming', 0);
 SELECT pg_catalog.setval('board_id_seq', 3, true);
 
 INSERT INTO status VALUES (1, 'new');
@@ -134,3 +135,13 @@ INSERT INTO board_status VALUES (11, 3, 2);
 INSERT INTO board_status VALUES (12, 3, 3);
 INSERT INTO board_status VALUES (13, 3, 4);
 SELECT pg_catalog.setval('board_status_id_seq', 13, true);
+
+INSERT INTO users VALUES (1, 'user', 'password');
+INSERT INTO users VALUES (2, 'user1', 'password1');
+SELECT pg_catalog.setval('users_id_seq', 3, true);
+
+INSERT INTO users_boards VALUES (1, 1, 2);
+INSERT INTO users_boards VALUES (2, 1, 1);
+SELECT pg_catalog.setval('users_boards_id_seq', 3, true);
+
+

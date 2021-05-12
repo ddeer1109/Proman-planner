@@ -63,10 +63,31 @@ def get_statuses(cursor: RealDictCursor):
 @data_connection.connection_handler
 def get_boards(cursor: RealDictCursor):
     query = f"""
-    SELECT * FROM board
-    ORDER BY id
+    SELECT id, title FROM board
+    WHERE private=0
+    ORDER BY id;
     """
     cursor.execute(query)
+
+    dictBoardsList = []
+    for entry in cursor.fetchall():
+        dictBoardsList.append(dict(entry))
+
+    return dictBoardsList
+
+
+@data_connection.connection_handler
+def get_private_boards(cursor: RealDictCursor, user_id):
+    query = f"""
+    SELECT board.id as id, board.title as title FROM board
+    INNER JOIN users_boards
+    ON board.id = users_boards.board_id
+    INNER JOIN users
+    ON users_boards.user_id = users.id
+    WHERE users.id=%(user_id)s
+    ORDER BY board.id;
+    """
+    cursor.execute(query, {'user_id': user_id})
 
     dictBoardsList = []
     for entry in cursor.fetchall():
@@ -120,6 +141,26 @@ def add_new_board(cursor: RealDictCursor, board_data):
 
     cursor.execute(command, board_data)
     return dict(cursor.fetchone())
+
+
+@data_connection.connection_handler
+def add_new_private_board(cursor: RealDictCursor, board_data, user_id):
+    command = f"""
+    INSERT INTO board(title)
+    VALUES (%(title)s)
+    RETURNING *
+    """
+
+    cursor.execute(command, board_data)
+    board = dict(cursor.fetchone())
+
+    commandUsersBoards = f"""
+        INSERT INTO users_boards(user_id, board_id)
+        VALUES (%(user_id)s, %(board_id)s)
+    """
+    cursor.execute(commandUsersBoards, {"user_id": user_id, "board_id": board['id']})
+
+    return board
 
 
 @data_connection.connection_handler

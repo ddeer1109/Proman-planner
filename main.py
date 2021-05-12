@@ -29,6 +29,14 @@ def get_boards():
     """
     return data_handler.get_boards()
 
+@app.route("/users/<int:user_id>/get-boards")
+@json_response
+def get_private_boards(user_id):
+    """
+    All the boards
+    """
+    return data_handler.get_private_boards(user_id)
+
 
 @app.route("/get-board/<int:board_id>")
 @json_response
@@ -63,8 +71,16 @@ def get_board_statuses(board_id: int):
 
 @app.route("/new-board", methods=["POST", "GET"])
 @json_response
-def post_new_board():
-    new_board = data_handler.add_new_board(request.get_json())
+def post_new_board(user_id=None):
+    if user_id:
+        new_board = data_handler.add_new_board(request.get_json())
+    return new_board
+
+
+@app.route("/users/<int:user_id>/new-board", methods=["POST", "GET"])
+@json_response
+def post_new_private_board(user_id):
+    new_board = data_handler.add_new_private_board(request.get_json(), user_id)
     return new_board
 
 
@@ -148,6 +164,8 @@ def login():
 @json_response
 def check_session():
     return session
+
+
 
 
 def main():

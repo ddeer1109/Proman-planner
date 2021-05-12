@@ -93,13 +93,39 @@ export let dom = {
 
     insertSigningButtons() {
         const signingBar = document.getElementById("signing-bar");
-        signingBar.insertAdjacentHTML('afterbegin', htmlComponents.unloggedSigningButtons())
-        console.log(this.buttons.logging())
-        this.setSigningButtons()
+        console.log(dataHandler.isSessionOn(), 'session')
+        if (dataHandler.isSessionOn()) {
+            const elements = this.setLoggedSessionBar()
+            console.log(elements, 'session - elements');
+        } else {
+            signingBar.insertAdjacentHTML('afterbegin', htmlComponents.unloggedSigningButtons())
+            console.log(this.buttons.logging())
+            this.setSigningButtons()
+        }
     },
     setSigningButtons() {
         dom.buttons.logging().onclick = dom.logging;
         dom.buttons.registration().onclick = dom.registration;
+    },
+    setLoggedSessionBar() {
+        const signingBar = document.getElementById("signing-bar");
+        signingBar.innerText = "";
+        const span = document.createElement('span');
+        span.innerText = `Logged as ${dataHandler.getSession().user_name}`
+        const logoutButton = document.createElement('button');
+        logoutButton.onclick = () => {
+            dataHandler._session = {};
+            signingBar.innerHTML = "";
+            location.reload();
+        }
+        logoutButton.innerText = "Log out"
+        logoutButton.className = "btn btn-outline-light m-1";
+        span.className = "logged-span m-1"
+        signingBar.appendChild(span);
+        signingBar.appendChild(logoutButton);
+    },
+    setUsersPrivateBoards() {
+
     },
     registration() {
         console.log('registeration')
@@ -132,15 +158,19 @@ export let dom = {
         const form = document.getElementById('form');
         const inputLogin = document.getElementById('input-login');
         const inputPassword = document.getElementById('input-password');
+        console.log(dataHandler._session);
 
 
         form.addEventListener('submit', (event) => {
             event.preventDefault();
 
             dataHandler.validateUserLogin({login: inputLogin.value, password: inputPassword.value}, (response) => {
-                console.log(response);
-                if (response.validated) {
+                console.log(response, "response");
+                if (response.validated == "true") {
                     dataHandler.setSession(response.user_id, response.user_name);
+                    console.log(dataHandler._session);
+                    this.setLoggedSessionBar();
+                    dom.loadPrivateBoards();
                     modal.remove()
                 } else {
                     alert("Incorrect logging data.")
@@ -161,13 +191,20 @@ export let dom = {
             // console.log("data - > ", dataHandler._data)
         });
     },
-    showBoards: function (boards) {
+    loadPrivateBoards: function () {
+        console.log("private boards")
+        dataHandler.getPrivateBoards( function(boards) {
+            dom.showBoards(boards, false);
+            console.log("boards", boards)
+        })
+    },
+    showBoards: function (boards, withReset=true) {
         // shows boards appending them to #boards div
         // it adds necessary event listeners also
         const pageContainer = document.getElementById('boards');
         const accordion = dom.createAccordion(boards);
         // console.log('container', pageContainer.innerHTML);
-
+        console.log(withReset, 'reset')
         // pageContainer.replaceChild(accordion, pageContainer.firstChild);
         setTimeout(() => {
             pageContainer.innerHTML = "";
@@ -191,9 +228,15 @@ export let dom = {
 
         form.addEventListener('submit', (event) => {
             event.preventDefault();
-            dataHandler.createNewBoard({ 'title': inputField.value }, (newBoard) => {
-                dom.addNewBoardToContainer(newBoard);
-            });
+            if (dataHandler.getSession() == {}) {
+                dataHandler.createNewBoard({ 'title': inputField.value }, (newBoard) => {
+                    dom.addNewBoardToContainer(newBoard);
+                });
+            } else {
+                dataHandler.createNewPrivateBoard({ 'title': inputField.value }, (newBoard) => {
+                    dom.addNewBoardToContainer(newBoard);
+                });
+            }
             modal.remove();
         });
 
@@ -304,7 +347,6 @@ export let dom = {
         buttonRemoveBoard.addEventListener('click', () => {
             const boardHeadingButton = accordionItem.querySelector(`h2#heading${board_id} button`);
             const updateForm = this.createUpdateBoard(boardHeadingButton, board_id, () => {
-                console.log('SUCCED !!! === board name edition');
                 updateForm.replaceWith(boardHeadingButton);
             })
             boardHeadingButton.replaceWith(updateForm);
@@ -393,11 +435,13 @@ export let dom = {
         updateForm.setAttribute('class', 'flex-center-middle g-1 my-card-form')
         updateForm.setAttribute('method', 'post')
         updateForm.addEventListener('submit', (evt) => {
+            // removeEventListener() - i przywrócenie // lub flaga
             evt.preventDefault()
             updateInput.blur()
 
             dataHandler.updateColumn({ id: columnId, title: updateInput.value }, () => {
                 title.innerText = updateInput.value;
+
             })
         })
 
@@ -407,6 +451,8 @@ export let dom = {
         updateInput.setAttribute('id', 'input');
         updateInput.addEventListener("focusout", () => {
             setTimeout(() => {
+                // remove event listener - nie anonimowa funkcja
+                // if flaga == true ...
                 callback()
             }, 150)
         })
@@ -431,7 +477,6 @@ export let dom = {
             // dataHandler.updateColumn({ id: boardId, title: updateInput.value}, () => {
             //     title.innerText = updateInput.value;
             // })
-            console.log({ id: boardId, title: updateInput.value }, 'success board!!!!!!!');
             dataHandler.updateBoard({ id: boardId, title: updateInput.value }, () => {
                 title.innerText = updateInput.value;
             });
@@ -556,7 +601,6 @@ export let dom = {
         const columnDiv = dom.createStatusColumn(boardId, newColumn);
         const boardAccBody = htmlSelectors.getAccordionBody(boardId);
         boardAccBody.appendChild(columnDiv);
-        console.log("add column", columnDiv);
     },
 
 

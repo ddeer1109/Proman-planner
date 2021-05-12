@@ -47,7 +47,9 @@ export const drag_and_drop = {
         evt.target.classList.add('hold');
         setTimeout(() => {
             this.className = 'invisible';
+            console.log("blabla 11111111!")
         }, 0);
+        console.log("blabla !!!")
     },
 
     dragEndCard: function dragEnd(evt) {

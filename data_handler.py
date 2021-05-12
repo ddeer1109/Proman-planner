@@ -84,3 +84,13 @@ def createNewUser(user):
 
 def get_user_if_validated(user_data):
     return persistence.get_user(user_data)
+
+
+def get_private_boards(user_id):
+    return persistence.get_private_boards(user_id)
+
+
+def add_new_private_board(board_data, user_id):
+    board = persistence.add_new_private_board(board_data, user_id)
+    persistence.add_default_statuses(board['id'])
+    return board

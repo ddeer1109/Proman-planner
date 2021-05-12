@@ -69,6 +69,14 @@ export let dataHandler = {
             callback(response);
         });
     },
+    getPrivateBoards(callback) {
+        if (this.getSession()) {
+            this._api_get(`users/${this._session.id}/get-boards`, (response) => {
+                this._data['boards'] = response;
+                callback(response);
+            });
+        }
+    },
     getBoard: function (boardId, callback) {
         // the board is retrieved and then the callback function is called with the board
         this._api_get(`/get-board/${boardId}`, (response) => {
@@ -113,6 +121,13 @@ export let dataHandler = {
     createNewBoard: function (boardData, callback) {
         // creates new board, saves it and calls the callback function with its data
         this._api_post('/new-board', boardData, (response) => {
+            this._data['boards'].push(response);
+            callback(response);
+        });
+    },
+    createNewPrivateBoard: function (boardData, callback) {
+        // creates new board, saves it and calls the callback function with its data
+        this._api_post(`/users/${this.getSession().id}/new-board`, boardData, (response) => {
             this._data['boards'].push(response);
             callback(response);
         });
@@ -188,5 +203,12 @@ export let dataHandler = {
         this._session.id = id;
         this._session.user_name = user_name;
         console.log(this._session);
-    }
+    },
+    getSession() {
+        return this._session;
+    },
+    isSessionOn() {
+        return this._session.id != undefined;
+    },
+
 };
