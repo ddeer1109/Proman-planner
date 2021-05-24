@@ -468,7 +468,7 @@ export let dom = {
             const title = updateInput.value;
             evHandler.updateCard(id, title, updateForm);
         }
-        const abortEv = () => evHandler.abort.updateBoardOrColumn(updateButton,
+        const abortEv = () => evHandler.abort.updateBoardOrColumn(
             () => updateForm.replaceWith(cardDiv))
         const updateForm = components.card.updateForm(submitEv);
         const updateContainer = document.createElement('div');
