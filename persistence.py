@@ -134,8 +134,8 @@ def get_board_statuses(cursor: RealDictCursor, board_id):
 @data_connection.connection_handler
 def add_new_board(cursor: RealDictCursor, board_data):
     command = f"""
-    INSERT INTO board(title)
-    VALUES (%(title)s)
+    INSERT INTO board(title, private)
+    VALUES (%(title)s, 0)
     RETURNING *
     """
 
@@ -146,8 +146,8 @@ def add_new_board(cursor: RealDictCursor, board_data):
 @data_connection.connection_handler
 def add_new_private_board(cursor: RealDictCursor, board_data, user_id):
     command = f"""
-    INSERT INTO board(title)
-    VALUES (%(title)s)
+    INSERT INTO board(title, private)
+    VALUES (%(title)s, 1)
     RETURNING *
     """
 

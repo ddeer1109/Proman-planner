@@ -71,9 +71,8 @@ def get_board_statuses(board_id: int):
 
 @app.route("/new-board", methods=["POST", "GET"])
 @json_response
-def post_new_board(user_id=None):
-    if user_id:
-        new_board = data_handler.add_new_board(request.get_json())
+def post_new_board():
+    new_board = data_handler.add_new_board(request.get_json())
     return new_board
 
 

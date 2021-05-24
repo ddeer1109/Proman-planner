@@ -9,6 +9,8 @@
 // It uses data_handler.js to visualize elements
 import { dataHandler } from "./data_handler.js";
 import { drag_and_drop } from "./drag_and_drop.js";
+import {evHandler} from "./evHandler.js";
+import { components } from "./htmlComponents.js";
 
 // ================ Utilities
 export let htmlSelectors = {
@@ -21,47 +23,6 @@ export let htmlSelectors = {
         return accBody.querySelector(`div.status-column[data-column="${statusId}"] .column-content`)
     },
 };
-
-export let htmlComponents = {
-    getModalInputForm(labelText) {
-        return `
-            <form id="form" class="flex-center-middle g-1" method="post">
-                <div class="flex-center-middle">
-                    <div class="">
-                        <input id="input" type="text" class="form-control" placeholder="${labelText}" required>
-                    </div>  
-                    <div class="">
-                        <button id="buttonSubmit" type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
-                        <button id="buttonCancel" type="button" class="btn btn-warning">Cancel</button>
-                    </div>
-                </div>
-            </form>
-        `
-    },
-    getModalSigningForm(labelText) {
-        return `
-            <form id="form" class="flex-center-middle g-1" method="post">
-                <div class="sign-dialogue">                     
-                    <h3 class="signing">${labelText}</h3>
-                    <div class="">
-                        <input id="input-login" type="text" class="form-control m-1 signing" placeholder="login" required>
-                        <input id="input-password" type="password" class="form-control m-1 signing" placeholder="password" required>
-                    </div>  
-                    <div class="registration-buttons">
-                        <button id="buttonSubmit" type="submit" class="btn btn-success signing-btn m-2">Submit</button>
-                        <button id="buttonCancel" type="button" class="btn btn-warning m-2">Cancel</button>
-                    </div>
-                </div>
-            </form>
-        `
-    },
-    unloggedSigningButtons() {
-        return `
-            <button id="registration" type="button" class="btn btn-outline-light m-1">Register</button>
-            <button id="logging" type="button" class="btn btn-outline-light m-1">Log in</button>
-        `
-    }
-}
 
 export let dom = {
     accordionContainer: null,
@@ -90,7 +51,40 @@ export let dom = {
 
     // ===============
     // ================ USERS REGISTRATION / LOGIN
+    registration() {
+        console.log('registeration')
+        dom.createRegistrationModal();
 
+    },
+    logging() {
+        console.log('logging')
+        dom.createLogInModal();
+
+    },
+    createRegistrationModal() {
+        const modal = dom.createFullScreenFormModal('Board title', components.plainHtml.getModalSigningForm("Sign up"));
+        const form = document.getElementById('form');
+        const inputLogin = document.getElementById('input-login');
+        const inputPassword = document.getElementById('input-password');
+        inputLogin.focus();
+        form.addEventListener('submit', function(ev) {
+            ev.preventDefault();
+            const userData = {login: inputLogin.value, password: inputPassword.value};
+            evHandler.submitRegistration(modal, userData);
+        });
+    },
+    createLogInModal() {
+        const modal = dom.createFullScreenFormModal('Sign up', components.plainHtml.getModalSigningForm("Sign up"));
+        const form = document.getElementById('form');
+        const inputLogin = document.getElementById('input-login');
+        const inputPassword = document.getElementById('input-password');
+        inputLogin.focus();
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const userData = {login: inputLogin.value, password: inputPassword.value};
+            evHandler.submitLogin(userData, modal)
+        });
+    },
     insertSigningButtons() {
         const signingBar = document.getElementById("signing-bar");
         console.log(dataHandler.isSessionOn(), 'session')
@@ -98,7 +92,7 @@ export let dom = {
             const elements = this.setLoggedSessionBar()
             console.log(elements, 'session - elements');
         } else {
-            signingBar.insertAdjacentHTML('afterbegin', htmlComponents.unloggedSigningButtons())
+            signingBar.insertAdjacentHTML('afterbegin', components.plainHtml.unloggedSigningButtons())
             console.log(this.buttons.logging())
             this.setSigningButtons()
         }
@@ -124,61 +118,6 @@ export let dom = {
         signingBar.appendChild(span);
         signingBar.appendChild(logoutButton);
     },
-    setUsersPrivateBoards() {
-
-    },
-    registration() {
-        console.log('registeration')
-        dom.createRegistrationModal();
-
-    },
-    logging() {
-        console.log('logging')
-        dom.createLogInModal();
-
-    },
-    createRegistrationModal() {
-        const modal = dom.createAddFormModal('Board title', htmlComponents.getModalSigningForm("Sign up"));
-        const form = document.getElementById('form');
-        const inputLogin = document.getElementById('input-login');
-        const inputPassword = document.getElementById('input-password');
-
-
-        form.addEventListener('submit', (event) => {
-            event.preventDefault();
-
-            dataHandler.createNewUser({login: inputLogin.value, password: inputPassword.value}, () => {
-                console.log("SUCCESS new user")
-                modal.remove();
-            })
-        });
-    },
-    createLogInModal() {
-        const modal = dom.createAddFormModal('Board title', htmlComponents.getModalSigningForm("Sign in"));
-        const form = document.getElementById('form');
-        const inputLogin = document.getElementById('input-login');
-        const inputPassword = document.getElementById('input-password');
-        console.log(dataHandler._session);
-
-
-        form.addEventListener('submit', (event) => {
-            event.preventDefault();
-
-            dataHandler.validateUserLogin({login: inputLogin.value, password: inputPassword.value}, (response) => {
-                console.log(response, "response");
-                if (response.validated == "true") {
-                    dataHandler.setSession(response.user_id, response.user_name);
-                    console.log(dataHandler._session);
-                    this.setLoggedSessionBar();
-                    dom.loadPrivateBoards();
-                    modal.remove()
-                } else {
-                    alert("Incorrect logging data.")
-                }
-            })
-        });
-    },
-
 
     // ===============
     // ================ BOARDS
@@ -198,29 +137,24 @@ export let dom = {
             console.log("boards", boards)
         })
     },
-    showBoards: function (boards, withReset=true) {
+    showBoards: async function (boards, withReset=true) {
         // shows boards appending them to #boards div
         // it adds necessary event listeners also
         const pageContainer = document.getElementById('boards');
-        const accordion = dom.createAccordion(boards);
-        // console.log('container', pageContainer.innerHTML);
-        console.log(withReset, 'reset')
-        // pageContainer.replaceChild(accordion, pageContainer.firstChild);
-        setTimeout(() => {
-            pageContainer.innerHTML = "";
-            pageContainer.appendChild(accordion);
-        }, 10)
+        const accordion = await dom.createAccordion(boards);
+        pageContainer.innerHTML = "";
+        await pageContainer.appendChild(accordion);
     },
     createAddBoardButton() {
         const pageHeader = document.getElementById('page-title');
-        const addingButton = document.createElement('button');
-        addingButton.innerText = "add board";
-        addingButton.setAttribute('class', 'btn btn-light m-1');
-        addingButton.addEventListener('click', dom.showAddBoardModal)
-        pageHeader.insertAdjacentElement('afterend', addingButton);
+        const addNewBoardButton = document.createElement('button');
+        addNewBoardButton.innerText = "add board";
+        addNewBoardButton.setAttribute('class', 'btn btn-light m-1');
+        addNewBoardButton.addEventListener('click', dom.showAddBoardModal)
+        pageHeader.insertAdjacentElement('afterend', addNewBoardButton);
     },
     showAddBoardModal() {
-        const modal = dom.createAddFormModal('Board title');
+        const modal = dom.createFullScreenFormModal();
         const form = document.getElementById('form');
         const inputField = document.getElementById('input');
         // inputField.select();
@@ -228,24 +162,14 @@ export let dom = {
 
         form.addEventListener('submit', (event) => {
             event.preventDefault();
-            if (dataHandler.getSession() == {}) {
-                dataHandler.createNewBoard({ 'title': inputField.value }, (newBoard) => {
-                    dom.addNewBoardToContainer(newBoard);
-                });
-            } else {
-                dataHandler.createNewPrivateBoard({ 'title': inputField.value }, (newBoard) => {
-                    dom.addNewBoardToContainer(newBoard);
-                });
-            }
-            modal.remove();
+            const boardData = { 'title': inputField.value };
+            evHandler.submitAddBoard(boardData, modal)
         });
 
-
-        inputField.addEventListener('focusout', () => {
-            setTimeout(() => modal.remove(), 1000);
-        });
+        inputField.addEventListener('focusout',
+            () => evHandler.abort.addBoard(modal));
     },
-    createAddFormModal(labelText="Board title", htmlForm = htmlComponents.getModalInputForm(labelText)) {
+    createFullScreenFormModal(labelText="Board title", htmlForm = components.plainHtml.getModalInputForm(labelText)) {
         const modal = document.createElement('div');
         const formContainer = document.createElement('div');
         modal.insertAdjacentHTML('afterbegin', htmlForm);
@@ -253,10 +177,7 @@ export let dom = {
         formContainer.appendChild(modal);
         document.body.appendChild(formContainer);
         const cancelButton = document.getElementById('buttonCancel');
-
-        cancelButton.addEventListener('click', () => {
-            formContainer.remove();
-        });
+        cancelButton.addEventListener('click', () => formContainer.remove());
         return formContainer;
     },
 
@@ -271,14 +192,8 @@ export let dom = {
         // retrieves cards and makes showCards called
         dataHandler.getCardsByBoardId(boardId, function (cards) {
             dom.initBoardColumnsRenderPromise(boardId)
-                .then(() => {
-                    setTimeout(() => dom.showCards(cards), 0)
-                })
-                .then(() => {
-                    setTimeout(() => {
-                        drag_and_drop.init();
-                    }, 0)
-                })
+                .then(() => dom.showCards(cards))
+                .then(() =>drag_and_drop.init())
         });
     },
     addNewBoardToContainer(newBoard) {
@@ -294,21 +209,17 @@ export let dom = {
         this.board = board;
 
         this.accordionItem = document.createElement('div');
-        this.accordionHeader = document.createElement('h2');
-        const accordionButton = document.createElement('button');
+        this.accordionHeader = components.board.accordionHeader(this.headerId);
+        const accordionButton = components.board.accordionButton(board.title, this.collapseId);
         this.accordionCollapseBody = document.createElement('div');
 
         this.accordionItem.setAttribute('class', `accordion-item`);
         this.accordionItem.setAttribute('id', `${board.id}`);
-        dom.setAccordionHeaderAttributes();
-        dom.setAccordionButtonAttributes(accordionButton);
 
-        accordionButton.addEventListener('click', () => {
-            dom.processAccordionItemExpanding(board.id, accordionButton)
-        }
-        );
+        accordionButton.addEventListener('click',
+            () => dom.processAccordionItemExpanding(board.id, accordionButton));
+
         dom.setAccordionCollapseBody();
-
         this.accordionHeader.appendChild(accordionButton);
         this.accordionItem.appendChild(this.accordionHeader);
         this.accordionItem.appendChild(this.accordionCollapseBody);
@@ -331,28 +242,21 @@ export let dom = {
         const buttonRemoveBoard = document.createElement('button');
         buttonRemoveBoard.setAttribute('class', 'btn btn-danger m-1');
         buttonRemoveBoard.innerText = 'Remove Board';
-        buttonRemoveBoard.addEventListener('click', () => {
-            if (window.confirm("Are you sure to remove this board?")) {
-                dataHandler.deleteBoard(board_id, () => {
-                    accordionItem.remove()
-                })
-            }
-        })
+        buttonRemoveBoard.addEventListener('click',
+            () => evHandler.removeBoard(accordionItem, board_id))
         return buttonRemoveBoard;
     },
     createUpdateBoardButton(accordionItem, board_id) {
-        const buttonRemoveBoard = document.createElement('button');
-        buttonRemoveBoard.setAttribute('class', 'btn btn-warning m-1');
-        buttonRemoveBoard.innerText = 'Rename board';
-        buttonRemoveBoard.addEventListener('click', () => {
-            const boardHeadingButton = accordionItem.querySelector(`h2#heading${board_id} button`);
-            const updateForm = this.createUpdateBoard(boardHeadingButton, board_id, () => {
-                updateForm.replaceWith(boardHeadingButton);
-            })
-            boardHeadingButton.replaceWith(updateForm);
-            updateForm.querySelector('#input').select();
-        })
-        return buttonRemoveBoard;
+        const buttonRenameBoard = document.createElement('button');
+        buttonRenameBoard.setAttribute('class', 'btn btn-warning m-1 ');
+        buttonRenameBoard.innerText = 'Rename board';
+        buttonRenameBoard.addEventListener('click',
+            (ev) => {
+                ev.target.disabled = true;
+                setTimeout(() => ev.target.disabled = false, 1000);
+                evHandler.renameBoard(accordionItem, board_id)
+            });
+        return buttonRenameBoard;
     },
     processAccordionItemExpanding(board_id, accordionButton) {
         accordionButton.setAttribute('disabled', 'true');
@@ -362,43 +266,22 @@ export let dom = {
             accordionButton.removeAttribute('disabled');
         }, 1000)
     },
-    setAccordionHeaderAttributes() {
-        this.accordionHeader.setAttribute('class', 'accordion-header');
-        this.accordionHeader.setAttribute('id', this.headerId);
-    },
-    setAccordionButtonAttributes(accordionButton) {
-        accordionButton.innerText = `${this.board.title}`;
-        accordionButton.setAttribute('class', 'accordion-button collapsed');
-        accordionButton.setAttribute('type', 'button');
-        accordionButton.setAttribute('data-bs-toggle', 'collapse');
-        accordionButton.setAttribute('data-bs-target', `#${this.collapseId}`);
-        accordionButton.setAttribute('aria-expanded', `false`);
-        accordionButton.setAttribute('aria-controls', this.collapseId);
-        accordionButton.setAttribute('click-cooldown', 'false');
-    },
     setAccordionCollapseBody() {
         this.accordionCollapseBody.setAttribute('id', this.collapseId);
         this.accordionCollapseBody.setAttribute('class', "accordion-collapse collapse");
         this.accordionCollapseBody.setAttribute('aria-labelledby', this.headerId);
         this.accordionCollapseBody.setAttribute('data-bs-parent', `#accordionContainer`);
 
-        // TODO - remove this 4 elements
-        // const removeBoardDiv = document.createElement('div')
-        // removeBoardDiv.setAttribute('class', 'remove-board-div')
-        // const removeBoardButton = this.removeBoardButton();
-        // removeBoardDiv.appendChild(removeBoardButton);
-
         const addColumnDiv = document.createElement('div');
         addColumnDiv.setAttribute('class', "add-col-btn")
         const boardId = this.board.id;
-        const addColumnButton = dom.createAddColumnButton(boardId);
+        const addColumnButton = components.column.newColumnButton(boardId);
         addColumnDiv.appendChild(addColumnButton);
 
         const accordionBody = document.createElement('div');
         accordionBody.setAttribute('class', 'accordion-body container');
         accordionBody.setAttribute('data-board', `${this.board.id}`);
 
-        // this.accordionCollapseBody.appendChild(removeBoardDiv);
         this.accordionCollapseBody.appendChild(accordionBody);
         this.accordionCollapseBody.appendChild(addColumnDiv);
     },
@@ -430,36 +313,20 @@ export let dom = {
             accBody.appendChild(colDiv);
         }
     },
-    createUpdateColumn(title, columnId, callback) {
-        const updateForm = document.createElement('form');
-        updateForm.setAttribute('class', 'flex-center-middle g-1 my-card-form')
-        updateForm.setAttribute('method', 'post')
-        updateForm.addEventListener('submit', (evt) => {
-            // removeEventListener() - i przywrócenie // lub flaga
-            evt.preventDefault()
-            updateInput.blur()
+    createUpdateColumn(titleDiv, columnId, callback) {
+        const updateButton = components.updateSubmitButton();
 
-            dataHandler.updateColumn({ id: columnId, title: updateInput.value }, () => {
-                title.innerText = updateInput.value;
+        const submitEv =
+            (ev) => {
+                ev.preventDefault();
+                const columnData = { id: columnId, title: updateInput.value }
+                evHandler.submitUpdateColumn(columnData, titleDiv, callback)
+        };
+        const abortEv =
+            () => evHandler.abort.updateBoardOrColumn(callback);
 
-            })
-        })
-
-        const updateInput = document.createElement('input');
-        updateInput.setAttribute('value', title.innerText);
-        updateInput.setAttribute('class', 'form-control update-card');
-        updateInput.setAttribute('id', 'input');
-        updateInput.addEventListener("focusout", () => {
-            setTimeout(() => {
-                // remove event listener - nie anonimowa funkcja
-                // if flaga == true ...
-                callback()
-            }, 150)
-        })
-
-        const updateButton = document.createElement('button');
-        updateButton.setAttribute('class', 'btn btn-success update-card');
-        updateButton.insertAdjacentHTML('afterbegin', '<i class="fas fa-check"></i>');
+        const updateForm = components.column.updateForm(submitEv);
+        const updateInput = components.column.updateInput(titleDiv.innerText, abortEv);
 
         updateForm.appendChild(updateInput);
         updateForm.appendChild(updateButton);
@@ -467,34 +334,18 @@ export let dom = {
         return updateForm
     },
     createUpdateBoard(title, boardId, callback) {
-        const updateForm = document.createElement('form');
-        updateForm.setAttribute('class', 'flex-center-middle g-1 my-card-form')
-        updateForm.setAttribute('method', 'post')
-        updateForm.addEventListener('submit', (evt) => {
+        const updateForm = components.board.updateForm();
+        const updateButton = components.updateSubmitButton();
+        const updateInput = components.board.updateInput(title.innerText);
+        const submitEv = (evt) => {
             evt.preventDefault()
-            updateInput.blur()
+            const boardData = { id: boardId, title: updateInput.value };
+            evHandler.submitUpdateBoard(boardData, title, callback)
+        }
+        const abortUpdateEv = () => evHandler.abort.updateBoardOrColumn(callback)
 
-            // dataHandler.updateColumn({ id: boardId, title: updateInput.value}, () => {
-            //     title.innerText = updateInput.value;
-            // })
-            dataHandler.updateBoard({ id: boardId, title: updateInput.value }, () => {
-                title.innerText = updateInput.value;
-            });
-        })
-
-        const updateInput = document.createElement('input');
-        updateInput.setAttribute('value', title.innerText);
-        updateInput.setAttribute('class', 'form-control update-card');
-        updateInput.setAttribute('id', 'input');
-        updateInput.addEventListener("focusout", () => {
-            setTimeout(() => {
-                callback()
-            }, 150)
-        })
-
-        const updateButton = document.createElement('button');
-        updateButton.setAttribute('class', 'btn btn-success update-card');
-        updateButton.insertAdjacentHTML('afterbegin', '<i class="fas fa-check"></i>');
+        updateForm.addEventListener('submit', submitEv)
+        updateInput.addEventListener("focusout", abortUpdateEv)
 
         updateForm.appendChild(updateInput);
         updateForm.appendChild(updateButton);
@@ -502,65 +353,37 @@ export let dom = {
         return updateForm
     },
     createStatusColumn(boardId, status) {
-
+        const dbClickEv = () => {
+            headerContainer.replaceWith(updateContainer)
+            updateContainer.querySelector('#input').select();
+        }
         const colDiv = document.createElement('div');
+        colDiv.classList.add(`status-column`);
+        colDiv.setAttribute('data-column', status.id);
 
-        const headerContainer = document.createElement('div')
-        headerContainer.setAttribute('class', 'column-header-container card');
-
+        const headerContainer = components.column.headerContainer(dbClickEv);
         const statusTitle = document.createElement('h4');
-        const btnDeleteColumn = this.createColumnButtonDelete(boardId, status, colDiv);
-
-        const statusContent = document.createElement('div');
-        const buttonAddCard = dom.createAddCardButton(boardId, status.id)
-
-        statusContent.appendChild(buttonAddCard)
-
         statusTitle.innerText = status.title;
-        statusContent.setAttribute('class', 'column-content');
-        statusContent.setAttribute('data-column', status.id);
+        const btnDeleteColumn = components.column.deleteButton(boardId, status, colDiv);
+
+        const statusContent = components.column.content(boardId, status);
 
         headerContainer.appendChild(statusTitle);
         headerContainer.appendChild(btnDeleteColumn);
 
-        colDiv.classList.add(`status-column`);
-        colDiv.setAttribute('data-column', status.id);
         colDiv.appendChild(headerContainer);
         colDiv.appendChild(statusContent);
 
         const updateContainer = document.createElement('div')
         updateContainer.setAttribute('class', 'column-header-container card');
-
-        const columnId = colDiv.getAttribute('data-column');
-
-        const updateSection = this.createUpdateColumn(statusTitle, columnId, () => {
-
+        const updateSection = this.createUpdateColumn(statusTitle, status.id, () => {
             updateContainer.replaceWith(headerContainer)
         })
         updateContainer.appendChild(updateSection)
 
-        headerContainer.addEventListener('dblclick', () => {
-            headerContainer.replaceWith(updateContainer)
-            updateContainer.querySelector('#input').select();
-        })
-
-
         return colDiv;
     },
-    createColumnButtonDelete(boardId, status, column) {
-        const btnDeleteColumn = document.createElement('button');
-        btnDeleteColumn.setAttribute('class', 'btn btn-danger btn-sm button-card-delete')
-        btnDeleteColumn.innerHTML = '<i class="fas fa-trash"></i>'
-        btnDeleteColumn.addEventListener('click', () => {
-            if (confirm('Are you sure to delete column?')) {
-                dataHandler.deleteColumn(boardId, status.id, () => {
-                    column.remove()
-                })
-            }
-        })
 
-        return btnDeleteColumn;
-    },
     showAddColumnModal(boardId) {
         const modal = dom.createAddColumnModal('Column name', boardId);
         const form = document.getElementById('form');
@@ -568,34 +391,27 @@ export let dom = {
             event.preventDefault();
             const inputField = document.getElementById('input');
             dataHandler.createNewColumn({ 'title': inputField.value, 'boardId': boardId }, (newColumn) => {
-                modal.replaceWith(dom.createAddColumnButton(boardId));
+                modal.replaceWith(components.column.newColumnButton(boardId));
                 dom.appendColumnToBoard(boardId, newColumn);
             });
         });
     },
     createAddColumnModal(labelText, boardId) {
         const modal = document.createElement('div');
-        modal.insertAdjacentHTML('afterbegin', htmlComponents.getModalInputForm(labelText));
+        modal.insertAdjacentHTML('afterbegin', components.plainHtml.getModalInputForm(labelText));
         modal.querySelector('#buttonCancel').remove();
         htmlSelectors.getAccordionBody(boardId).nextSibling.firstChild.replaceWith(modal);
         const inputField = document.getElementById('input');
         inputField.focus();
         // inputField.select();
+        const abortEv = () => {
+            const addColumnButton = components.column.newColumnButton(boardId);
+            modal.replaceWith(addColumnButton)
+        }
         inputField.addEventListener('focusout', () => {
-            setTimeout(() => {
-                modal.replaceWith(dom.createAddColumnButton(boardId))
-            }, 100)
+            evHandler.abort.updateBoardOrColumn(abortEv);
         });
         return modal;
-    },
-    createAddColumnButton(boardId) {
-        const addColumnButton = document.createElement('button');
-        addColumnButton.addEventListener('click', () => {
-            dom.showAddColumnModal(boardId);
-        });
-        addColumnButton.setAttribute('class', 'btn btn-light');
-        addColumnButton.innerText = "add column";
-        return addColumnButton;
     },
     appendColumnToBoard(boardId, newColumn) {
         const columnDiv = dom.createStatusColumn(boardId, newColumn);
@@ -633,7 +449,7 @@ export let dom = {
         buttonDelete.addEventListener('click', () => {
             dom.deleteCard(cardDiv, card.id);
         });
-        const updateSection = this.createUpdateSection(card.title, cardDiv);
+        const updateSection = this.createCardUpdateForm(card.title, cardDiv);
 
         cardDiv.addEventListener('dblclick', function () {
             this.replaceWith(updateSection);
@@ -644,42 +460,22 @@ export let dom = {
 
         return cardDiv;
     },
-    createUpdateSection(cardTitle, cardDiv) {
-        // const updateForm = htmlComponents.getModalInputForm("XYZ");
-        const updateForm = document.createElement('form');
-        updateForm.setAttribute('class', 'flex-center-middle g-1 my-card-form')
-        updateForm.setAttribute('method', 'post')
-
-        updateForm.addEventListener('submit', (evt) => {
+    createCardUpdateForm(cardTitle, cardDiv) {
+        // const updateForm = components.plainHtml.getModalInputForm("XYZ");
+        const submitEv = (evt) => {
             evt.preventDefault()
             const id = cardDiv.getAttribute('data-card')
             const title = updateInput.value;
-            dataHandler.updateCard({ 'card_id': id, 'card_title': title }, () => {
-                cardDiv = dom.createCard({ id: id, title: title })
-                updateForm.replaceWith(cardDiv);
-                setTimeout(() => {
-                    drag_and_drop.init()
-                }, 100)
-                updateInput.blur()
-            })
-        })
-
+            evHandler.updateCard(id, title, updateForm);
+        }
+        const abortEv = () => evHandler.abort.updateBoardOrColumn(updateButton,
+            () => updateForm.replaceWith(cardDiv))
+        const updateForm = components.card.updateForm(submitEv);
         const updateContainer = document.createElement('div');
         updateContainer.setAttribute('class', 'flex-center-middle');
 
-        const updateInput = document.createElement('input');
-        updateInput.setAttribute('value', cardTitle);
-        updateInput.setAttribute('class', 'form-control update-card');
-        updateInput.setAttribute('id', 'input');
-        updateInput.addEventListener("focusout", () => {
-            setTimeout(() => {
-                updateForm.replaceWith(cardDiv);
-            }, 150)
-        })
-
-        const updateButton = document.createElement('button');
-        updateButton.setAttribute('class', 'btn btn-success update-card');
-        updateButton.insertAdjacentHTML('afterbegin', '<i class="fas fa-check"></i>');
+        const updateInput = components.card.updateInput(cardTitle, abortEv);
+        const updateButton = components.updateSubmitButton();
 
         updateContainer.appendChild(updateInput);
         updateContainer.appendChild(updateButton);
@@ -691,14 +487,12 @@ export let dom = {
         const column = htmlSelectors.getColumn(accordionBody, cardStatusId);
         column.appendChild(cardDiv);
     },
-    appendNewCardToColumn(columnId, card) {
+    async appendNewCardToColumn(columnId, card) {
         const cardDiv = dom.createCard(card);
         const boardAccBody = htmlSelectors.getAccordionBody(card.board_id);
         const cardsStatusColumnDiv = htmlSelectors.getColumn(boardAccBody, columnId);
         cardsStatusColumnDiv.appendChild(cardDiv);
-        setTimeout(() => {
-            drag_and_drop.init()
-        }, 100)
+        await drag_and_drop.init()
     },
     deleteCard(card, card_id) {
         dataHandler.deleteCard(card_id, () => {
@@ -740,7 +534,7 @@ export let dom = {
         const modal = document.createElement('div');
         modal.setAttribute('class', "add-card-modal");
         modalouter.style.height = "40px";
-        modal.insertAdjacentHTML('afterbegin', htmlComponents.getModalInputForm(labelText));
+        modal.insertAdjacentHTML('afterbegin', components.plainHtml.getModalInputForm(labelText));
         modal.querySelector('#buttonCancel').remove();
         modal.querySelector('.flex-center-middle').setAttribute('class', "flex-add-card");
 
@@ -751,12 +545,13 @@ export let dom = {
         const inputField = document.getElementById('input');
         inputField.focus();
         // inputField.select();
-        inputField.addEventListener('focusout', () => {
-            const newButton = dom.createAddCardButton(boardId, statusId);
-            setTimeout(() => {
+        const abortEv = () => {
+            evHandler.abort.updateBoardOrColumn(() => {
+                const newButton = dom.createAddCardButton(boardId, statusId);
                 modalouter.replaceWith(newButton);
-            }, 100)
-        });
+            })
+        }
+        inputField.addEventListener('focusout', abortEv);
         return modalouter;
     },
 }
