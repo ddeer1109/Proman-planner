@@ -54,6 +54,17 @@ body {
     width: 100%;
 }
 
+h2.darkned form.my-card-form {
+    /*margin-top: 4px;*/
+    /*background-color: #dddddd;*/
+    padding:8px 0;
+    width: 20%;
+    margin: 0 auto;
+
+}
+h2.darkned form.my-card-form input {
+    text-align: center;
+}
 .update-card {
     padding-top: 8px;
     padding-bottom: 8px;

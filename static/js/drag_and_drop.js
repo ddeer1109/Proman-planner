@@ -15,17 +15,13 @@ export const drag_and_drop = {
         this.cols = document.querySelectorAll('.column-content');
         // console.log(this.cards, "cards")
         // console.log(this.cols, "cards")
-
+        drag_and_drop.removeListeners();
         for (let card of drag_and_drop.cards) {
             card.addEventListener('dragstart', drag_and_drop.dragStartCard);
             card.addEventListener('dragend', drag_and_drop.dragEndCard);
             card.addEventListener('dragenter', drag_and_drop.dragEnterCard)
             card.addEventListener('dragleave', drag_and_drop.dragLeaveCard)
-            card.addEventListener('drop', (evt) => {
-                drag_and_drop.dropCard(evt)
-                    .then((response) => drag_and_drop.refreshCardsIndexesInDataBase(response))
-                    .catch((err) => console.log(err, 'err'));
-            });
+            card.addEventListener('drop', drag_and_drop.dropCardEv);
 
         }
 
@@ -33,11 +29,7 @@ export const drag_and_drop = {
             col.addEventListener('dragover', drag_and_drop.dragOver);
             col.addEventListener('dragenter', drag_and_drop.dragEnter);
             col.addEventListener('dragleave', drag_and_drop.dragLeave);
-            col.addEventListener('drop', (evt) => {
-                drag_and_drop.dragDrop(evt)
-                    .then((response) => drag_and_drop.refreshCardsIndexesInDataBase(response))
-                    .catch((err) => console.log(err, 'err'));
-            });
+            col.addEventListener('drop', drag_and_drop.dropCardColEv);
         }
     },
 
@@ -112,6 +104,33 @@ export const drag_and_drop = {
                 console.log('success');
             })
         }, 0)
+    },
+    dropCardEv(evt) {
+            drag_and_drop.dropCard(evt)
+                .then((response) => drag_and_drop.refreshCardsIndexesInDataBase(response))
+                .catch((err) => console.log(err, 'err'));
+
+    },
+    dropCardColEv(evt) {
+            drag_and_drop.dragDrop(evt)
+                .then((response) => drag_and_drop.refreshCardsIndexesInDataBase(response))
+                .catch((err) => console.log(err, 'err'));
+    },
+    removeListeners() {
+        for (let card of drag_and_drop.cards) {
+            card.removeEventListener('dragstart', drag_and_drop.dragStartCard);
+            card.removeEventListener('dragend', drag_and_drop.dragEndCard);
+            card.removeEventListener('dragenter', drag_and_drop.dragEnterCard)
+            card.removeEventListener('dragleave', drag_and_drop.dragLeaveCard)
+            card.removeEventListener('drop', drag_and_drop.dropCardEv);
+
+        }
+        for(let col of drag_and_drop.cols) {
+            col.removeEventListener('dragover', drag_and_drop.dragOver);
+            col.removeEventListener('dragenter', drag_and_drop.dragEnter);
+            col.removeEventListener('dragleave', drag_and_drop.dragLeave);
+            col.removeEventListener('drop', drag_and_drop.dropCardColEv);
+        }
     }
 }
 

@@ -18,7 +18,8 @@ export let dataHandler = {
             .then(json_response => {
                 // console.log("json response", json_response);
                 callback(json_response)
-            });  // Call the `callback` with the returned object
+            })
+            .catch(err => console.log("Error occured ", err));  // Call the `callback` with the returned object
     },
     _api_post: function (url, data, callback) {
         fetch(url, {
@@ -33,7 +34,8 @@ export let dataHandler = {
             .then(response => response.json())
             .then(json_response => {
                 callback(json_response)
-            });
+            })
+            .catch(err => console.log("Error occured ", err));
     },
     _api_put: function (url, data, callback) {
         fetch(url, {
@@ -49,7 +51,8 @@ export let dataHandler = {
             .then(json_response => {
                 // console.log("json response", json_response)
                 callback(json_response)
-            });
+            })
+            .catch(err => console.log("Error occured ", err));
     },
     _api_delete: function (url, callback) {
         fetch(url, {
@@ -157,9 +160,7 @@ export let dataHandler = {
         })
     },
     deleteColumn: function (boardId, statusId, callback) {
-        this._api_delete(`/delete-column/${boardId}/${statusId}`, () => {
-            callback();
-        })
+        this._api_delete(`/delete-column/${boardId}/${statusId}`, callback)
     },
     deleteBoard(board_id, callback) {
         this._api_delete(`/delete-board/${board_id}`, () => {
