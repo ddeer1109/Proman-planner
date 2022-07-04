@@ -13,6 +13,7 @@ UPLOADED_IMAGES_FILE_PATH = pathlib.Path(f"{pathlib.Path(__file__).parent.absolu
 
 
 def get_connection_string():
+    # test change!
     # setup connection string
     # to do this, please define these environment variables first
     user_name = os.environ.get('PSQL_USER_NAME')
