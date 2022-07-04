@@ -20,6 +20,7 @@ def get_connection_string():
     password = os.environ.get('PSQL_PASSWORD')
     host = os.environ.get('PSQL_HOST')
     database_name = os.environ.get('PSQL_DB_NAME')
+    print('user_name, password, host, database_name')
     
     print(user_name, password, host, database_name)
     
